@@ -21,23 +21,35 @@ enum Type {
 }
 */
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Path {
+    text: String,
+}
 
+#[derive(Serialize, Deserialize, Debug)]
+struct Data {
+    path: Option<Path>,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Node {
     r#type: Type,
+    data: Data,
     // age: u8,
     // phones: Vec<String>,
 }
 
+/*
 impl Node {
     pub fn new(data_raw: &str) -> Self {
         Self {
             r#type: Type::begin,
+            data: 
             // age: 0,
         }
     }
 }
+*/
 
 struct Nodes {
     nodes: Vec<Node>,
