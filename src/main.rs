@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
@@ -6,24 +7,34 @@ mod io;
 
 #[derive(Serialize, Deserialize, Debug)]
 enum Type {
+    begin,
+    r#match,
+    end,
+    summary,
+}
+/*
+enum Type {
     Begin,
     Match,
     End,
     Summary,
 }
+*/
+
+
 
 #[derive(Serialize, Deserialize, Debug)]
 struct Node {
     r#type: Type,
-    age: u8,
+    // age: u8,
     // phones: Vec<String>,
 }
 
 impl Node {
     pub fn new(data_raw: &str) -> Self {
         Self {
-            r#type: Type::Begin,
-            age: 0,
+            r#type: Type::begin,
+            // age: 0,
         }
     }
 }
@@ -54,9 +65,22 @@ impl Nodes {
             data: js,
         }
         */
-        Self {
-            nodes: vec![Node::new("")],
+        let mut v: Vec<Node> = vec![];
+
+        for d in data_raw {
+            // let n: Node = serde_json::from_str(d)?;
+            let n:Node = Self::parse_data(d).unwrap();
+
+            v.push(n)
         }
+        Self {
+            // nodes: vec![Node::new("")],
+            nodes: v,
+        }
+    }
+    fn parse_data(d: &str) -> Result<Node> {
+        let n: Node = serde_json::from_str(d)?;
+        Ok(n)
     }
 }
 
@@ -78,16 +102,20 @@ impl Display for Nodes {
     }
 }
 
+fn run(results: Vec<&str>) -> Result<()> {
+    let parsed_result = Nodes::new(results);
+    println!("{}", parsed_result);
 
+    Ok(())
+}
 
 
 fn main() {
     println!("Hello, world!");
     let results = io::run_command();
     // let parsed_result = result;
-    let parsed_result = Nodes::new(results.split("\n").collect::<Vec<&str>>());
+    run(results.split("\n").collect::<Vec<&str>>());
     // let r = rg_wrapper::RgWrapper::new(results.split("\n").collect::<Vec<&str>>());
 
-    println!("{}", parsed_result);
 
 }
