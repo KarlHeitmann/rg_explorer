@@ -46,14 +46,14 @@ enum Event<I> {
 #[derive(Copy, Clone, Debug)]
 enum MenuItem {
     Home,
-    Pets,
+    Nodes,
 }
 
 impl From<MenuItem> for usize {
     fn from(input: MenuItem) -> usize {
         match input {
             MenuItem::Home => 0,
-            MenuItem::Pets => 1,
+            MenuItem::Nodes => 1,
         }
     }
 }
@@ -90,7 +90,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }
 
-            if last_tick.elapsed() >= tick_rate {
+            if last_tick.elapsed() >= tick_rate { // This if block makes everything "change", cos it's actually updating. Comment the block to not get so confused with the TUI
                 if let Ok(_) = tx.send(Event::Tick) {
                     last_tick = Instant::now();
                 }
@@ -103,7 +103,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    let menu_titles = vec!["Home", "Pets", "Add", "Delete", "Quit"];
+    let menu_titles = vec!["Home", "Nodes", "Add", "Delete", "Quit"];
     let mut active_menu_item = MenuItem::Home;
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
@@ -161,7 +161,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
                 MenuItem::Home => rect.render_widget(render_home(), chunks[1]),
-                MenuItem::Pets => {
+                MenuItem::Nodes => {
                     let pets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
                         .constraints(
@@ -184,7 +184,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     break;
                 }
                 KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                KeyCode::Char('p') => active_menu_item = MenuItem::Pets,
+                KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
                 KeyCode::Char('a') => {
                     add_random_pet_to_db().expect("can add new random pet");
                 }
@@ -249,7 +249,7 @@ fn render_pets<'a>(pet_list_state: &ListState) -> (List<'a>, Table<'a>) {
     let pets = Block::default()
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::White))
-        .title("Pets")
+        .title("RG Explorer")
         .border_type(BorderType::Plain);
 
     let pet_list = read_db().expect("can fetch pet list");
