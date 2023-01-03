@@ -2,7 +2,6 @@ use std::process::{Command, Stdio};
 use std::str;
 
 pub fn run_command() -> String {
-    println!("run_command");
     let command = format!("fn --json");
     let child = Command::new("rg")
         .args(command.split(' '))
