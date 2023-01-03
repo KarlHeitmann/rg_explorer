@@ -1,24 +1,13 @@
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-use std::fmt::{Display, Formatter, Result as FmtResult};
-use serde_json::Result;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[allow(non_camel_case_types)]
 enum Type {
     begin,
     r#match,
     end,
     summary,
 }
-/*
-enum Type {
-    Begin,
-    Match,
-    End,
-    Summary,
-}
-*/
-
 #[derive(Serialize, Deserialize, Debug)]
 struct Path {
     text: String,
@@ -54,20 +43,5 @@ struct Data {
 pub struct Node {
     r#type: Type,
     data: Data,
-    // age: u8,
-    // phones: Vec<String>,
 }
-
-/*
-impl Node {
-    pub fn new(data_raw: &str) -> Self {
-        Self {
-            r#type: Type::begin,
-            data: 
-            // age: 0,
-        }
-    }
-}
-*/
-
 

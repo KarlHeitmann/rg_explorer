@@ -6,13 +6,9 @@ fn run(results: Vec<&str>) {
     println!("{}", parsed_result);
 }
 
-
 fn main() {
     println!("Hello, world!");
     let results = io::run_command();
-    // let parsed_result = result;
     run(results.split("\n").collect::<Vec<&str>>());
-    // let r = rg_wrapper::RgWrapper::new(results.split("\n").collect::<Vec<&str>>());
-
-
 }
+

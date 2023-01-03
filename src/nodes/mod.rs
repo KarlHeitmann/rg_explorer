@@ -1,16 +1,11 @@
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
-// pub use node::Node;
-
 pub mod node;
 pub use node::Node;
 
-
 pub struct Nodes {
     nodes: Vec<Node>,
-    // pub data: Vec<json::JsonValue>,
-
 }
 
 impl Nodes {
@@ -18,7 +13,6 @@ impl Nodes {
         let mut v: Vec<Node> = vec![];
 
         for d in data_raw {
-            // let n:Node = Self::parse_data(d).unwrap();
             let n = Self::parse_data(d);
 
             match n {
@@ -36,22 +30,9 @@ impl Nodes {
     }
 }
 
-
 impl Display for Nodes {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        /*
-        let mut string = String::from("");
-
-        for d in &self.data {
-            let num: String = d["type"].to_string();
-            string.push_str(&num);
-        }
-
-        write!(f, "RgWrapper: {}\n{:?}", string, self.nodes)
-        */
-        // write!(f, "RgWrapper: {}\n{:?}", string, self.nodes)
-        write!(f, "RgWrapper: {:?}", self.nodes)
+        write!(f, "Rg Explorer: {:?}", self.nodes)
     }
 }
-
 
