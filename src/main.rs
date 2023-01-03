@@ -27,8 +27,16 @@ struct Path {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+struct Lines {
+    text: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct Data {
     path: Option<Path>,
+    lines: Option<Lines>,
+    line_number: Option<usize>,
+    absolute_offset: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
