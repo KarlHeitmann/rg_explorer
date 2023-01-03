@@ -32,6 +32,12 @@ impl Nodes {
         v
     }
 
+    pub fn len(&self) -> usize {
+        let Nodes(foo) = self;
+
+        foo.len()
+    }
+
     fn parse_data(d: &str) -> Result<Node> {
         let n: Node = serde_json::from_str(d)?;
         Ok(n)

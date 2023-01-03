@@ -254,17 +254,20 @@ fn render_pets<'a>(pet_list_state: &ListState) -> (List<'a>, Table<'a>) {
 
     let pet_list = read_db().expect("can fetch pet list");
     let items: Vec<_> = pet_list
-        .iter()
+        .0.iter()
         .map(|pet| {
             ListItem::new(Spans::from(vec![Span::styled(
-                pet.name.clone(),
+                // pet.name.clone(),
+                // pet.r#type,
+                // pet.r#type.clone,
+                "asd".to_string(), // TODO: FIXME
                 Style::default(),
             )]))
         })
         .collect();
 
     let selected_pet = pet_list
-        .get(
+        .0.get(
             pet_list_state
                 .selected()
                 .expect("there is always a selected pet"),
@@ -279,12 +282,22 @@ fn render_pets<'a>(pet_list_state: &ListState) -> (List<'a>, Table<'a>) {
             .add_modifier(Modifier::BOLD),
     );
 
+    let det = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
+
     let pet_detail = Table::new(vec![Row::new(vec![
-        Cell::from(Span::raw(selected_pet.id.to_string())),
-        Cell::from(Span::raw(selected_pet.name)),
-        Cell::from(Span::raw(selected_pet.category)),
-        Cell::from(Span::raw(selected_pet.age.to_string())),
-        Cell::from(Span::raw(selected_pet.created_at.to_string())),
+        /*
+        Cell::from(Span::raw("id".to_string())), // FIXME
+        Cell::from(Span::raw("name".to_string())), // FIXME
+        Cell::from(Span::raw("category".to_string())), // FIXME
+        Cell::from(Span::raw("age".to_string())), // FIXME
+        Cell::from(Span::raw("created_at".to_string())), // FIXME
+        */
+        // let (id, name, category, age, created_at) = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
+        Cell::from(Span::raw(det.0)),
+        Cell::from(Span::raw(det.1)),
+        Cell::from(Span::raw(det.2)),
+        Cell::from(Span::raw(det.3)),
+        Cell::from(Span::raw(det.4)),
     ])])
     .header(Row::new(vec![
         Cell::from(Span::styled(
@@ -326,21 +339,27 @@ fn render_pets<'a>(pet_list_state: &ListState) -> (List<'a>, Table<'a>) {
     (list, pet_detail)
 }
 
-fn read_db() -> Result<Vec<Pet>, Error> {
-    let db_content = fs::read_to_string(DB_PATH)?;
-    let parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+fn read_db() -> Result<Nodes, Error> {
+    // let db_content = fs::read_to_string(DB_PATH)?;
+    // let parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+    let rs = run_command();
+    let parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
     Ok(parsed)
 }
 
-fn add_random_pet_to_db() -> Result<Vec<Pet>, Error> {
+fn add_random_pet_to_db() -> Result<Nodes, Error> {
     let mut rng = rand::thread_rng();
-    let db_content = fs::read_to_string(DB_PATH)?;
-    let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+    // let db_content = fs::read_to_string(DB_PATH)?;
+    let rs = run_command();
+    // let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+    // let mut parsed: Nodes = serde_json::from_str(&db_content)?;
+    let mut parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
     let catsdogs = match rng.gen_range(0, 1) {
         0 => "cats",
         _ => "dogs",
     };
 
+    /*
     let random_pet = Pet {
         id: rng.gen_range(0, 9999999),
         name: rng.sample_iter(Alphanumeric).take(10).collect(),
@@ -350,16 +369,20 @@ fn add_random_pet_to_db() -> Result<Vec<Pet>, Error> {
     };
 
     parsed.push(random_pet);
-    fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
+    */
+    // fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
     Ok(parsed)
 }
 
 fn remove_pet_at_index(pet_list_state: &mut ListState) -> Result<(), Error> {
     if let Some(selected) = pet_list_state.selected() {
         let db_content = fs::read_to_string(DB_PATH)?;
-        let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
-        parsed.remove(selected);
-        fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
+        let rs = run_command();
+        // let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
+        // let mut parsed: Nodes = serde_json::from_str(&db_content)?;
+        let mut parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
+        // parsed.remove(selected);
+        // fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
         let amount_pets = read_db().expect("can fetch pet list").len();
         if selected > 0 {
             pet_list_state.select(Some(selected - 1));

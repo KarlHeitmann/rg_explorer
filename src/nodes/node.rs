@@ -17,6 +17,12 @@ struct Path {
     text: String,
 }
 
+impl Display for Path {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "{}", self.text)
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 struct Lines {
     text: String,
@@ -71,6 +77,12 @@ pub struct Node {
     // pub r#type: Type,
     r#type: Type,
     data: Data,
+}
+
+impl Node {
+    pub fn detail(&self) -> (String, String, String, String, String) {
+        (self.data.path.as_ref().expect("PATH").to_string(), "name".to_string(), "category".to_string(), "age".to_string(), "created_at".to_string())
+    }
 }
 
 impl Display for Node {
