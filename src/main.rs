@@ -32,11 +32,24 @@ struct Lines {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
+struct Match {
+    text: String,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+struct Submatch {
+    r#match: Match,
+    start: usize,
+    end: usize,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
 struct Data {
     path: Option<Path>,
     lines: Option<Lines>,
     line_number: Option<usize>,
     absolute_offset: Option<usize>,
+    submatches: Option<Vec<Submatch>>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -89,9 +102,22 @@ impl Nodes {
 
         for d in data_raw {
             // let n: Node = serde_json::from_str(d)?;
-            let n:Node = Self::parse_data(d).unwrap();
+            // let n:Node = Self::parse_data(d).unwrap();
+            let n = Self::parse_data(d);
 
-            v.push(n)
+            /*
+            match version {
+                Ok(v) => println!("working with version: {v:?}"),
+                Err(e) => println!("error parsing header: {e:?}"),
+            }
+            */
+            match n {
+                Ok(val) => v.push(val),
+                Err(e) => println!("{e:?}\n{}", d),
+            }
+
+
+            // v.push(n)
         }
         Self {
             // nodes: vec![Node::new("")],
