@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use std::fmt::{Display, Formatter, Result as FmtResult};
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
@@ -43,5 +44,11 @@ struct Data {
 pub struct Node {
     r#type: Type,
     data: Data,
+}
+
+impl Display for Node {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "Rg Explorer: {:?}\n{:?}", self.r#type, self.data)
+    }
 }
 

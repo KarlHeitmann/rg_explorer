@@ -2,7 +2,7 @@ mod nodes;
 mod io;
 
 fn run(results: Vec<&str>) {
-    let parsed_result = nodes::Nodes::new(results);
+    let parsed_result = nodes::RgExplorer::new(results);
     println!("{}", parsed_result);
 }
 
