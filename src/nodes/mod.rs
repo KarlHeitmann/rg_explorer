@@ -41,8 +41,8 @@ impl Display for RgExplorer {
 
 impl Display for Nodes {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        self.0.iter().fold(Ok(()), |result, album| {
-            result.and_then(|_| writeln!(f, "{}", album))
+        self.0.iter().fold(Ok(()), |result, node| {
+            result.and_then(|_| writeln!(f, "{}", node))
         })
     }
 }
