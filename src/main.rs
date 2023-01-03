@@ -255,12 +255,9 @@ fn render_pets<'a>(pet_list_state: &ListState) -> (List<'a>, Table<'a>) {
     let pet_list = read_db().expect("can fetch pet list");
     let items: Vec<_> = pet_list
         .0.iter()
-        .map(|pet| {
+        .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
-                // pet.name.clone(),
-                // pet.r#type,
-                // pet.r#type.clone,
-                "asd".to_string(), // TODO: FIXME
+                node.summary(), // TODO: replace by something like "pet," or pet.name.clone(), memorare: pet.name was a String!!!
                 Style::default(),
             )]))
         })
