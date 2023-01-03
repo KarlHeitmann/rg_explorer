@@ -44,6 +44,8 @@ use tui::{
 mod nodes;
 // mod io::run_command;
 mod io_rg;
+use crate::io_rg::run_command;
+use crate::nodes::Nodes;
 
 const DB_PATH: &str = "./data/db.json";
 
@@ -84,12 +86,20 @@ impl From<MenuItem> for usize {
     }
 }
 
+fn run(results: Vec<&str>) -> Nodes {
+    Nodes::new(results)
+}
+/*
 fn run(results: Vec<&str>) {
     let parsed_result = nodes::RgExplorer::new(results);
     println!("{}", parsed_result);
 }
+*/
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let results = run_command();
+    run(results.split("\n").collect::<Vec<&str>>());
+
     enable_raw_mode().expect("can run in raw mode");
 
     let (tx, rx) = mpsc::channel();
