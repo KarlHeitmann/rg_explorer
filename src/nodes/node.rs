@@ -62,6 +62,7 @@ struct Data {
     elapsed_total: Option<Elapsed>,
 }
 
+// #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
     r#type: Type,
