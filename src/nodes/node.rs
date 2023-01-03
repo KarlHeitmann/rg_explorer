@@ -1,6 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+// #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
 enum Type {
@@ -10,6 +11,7 @@ enum Type {
     context,
     summary,
 }
+// #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 struct Path {
     text: String,
@@ -50,6 +52,7 @@ struct Stats {
     matches: usize,
 }
 
+// #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 struct Data {
     path: Option<Path>,
@@ -65,6 +68,7 @@ struct Data {
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
+    // pub r#type: Type,
     r#type: Type,
     data: Data,
 }
