@@ -1,22 +1,3 @@
-/*
-fn main() {
-    println!("Hello, world!");
-    let results = io::run_command();
-    run(results.split("\n").collect::<Vec<&str>>());
-}
-*/
-
-
-
-
-
-
-
-
-
-
-
-
 use chrono::prelude::*;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode},
@@ -62,15 +43,6 @@ enum Event<I> {
     Tick,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
-struct Pet {
-    id: usize,
-    name: String,
-    category: String,
-    age: usize,
-    created_at: DateTime<Utc>,
-}
-
 #[derive(Copy, Clone, Debug)]
 enum MenuItem {
     Home,
@@ -103,6 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode().expect("can run in raw mode");
 
     let (tx, rx) = mpsc::channel();
+    // let tick_rate = Duration::from_millis(2000);
     let tick_rate = Duration::from_millis(200);
     thread::spawn(move || {
         let mut last_tick = Instant::now();
