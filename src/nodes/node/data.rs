@@ -37,10 +37,10 @@ struct Submatch {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Elapsed {
+pub struct Elapsed {
     secs: usize,
     nanos: usize,
-    human: String,
+    pub human: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -64,7 +64,7 @@ pub struct Data {
     submatches: Option<Vec<Submatch>>,
     // binary_offset: Option<String>, // TODO: binary_offset I don't want to implement because I don't know exactly which type of data it is. More info here: https://docs.rs/grep-printer/0.1.6/grep_printer/struct.JSON.html#message-end
     stats: Option<Stats>,
-    elapsed_total: Option<Elapsed>,
+    pub elapsed_total: Option<Elapsed>,
 }
 
 

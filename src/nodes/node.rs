@@ -28,6 +28,15 @@ impl Node {
                 String::new(),
                 // "created_at".to_string()
             ),
+            Type::summary => (
+                // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").to_string(),
+                self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").human.to_string(),
+                // String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
+            ),
             // _ => ("".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string())
             _ => (String::from(""), String::new(), String::new(), String::new(), String::new())
         }
