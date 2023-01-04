@@ -25,7 +25,7 @@ use tui::{
 mod nodes;
 // mod io::run_command;
 mod io_rg;
-use crate::io_rg::run_command;
+use crate::io_rg::RipGrep;
 use crate::nodes::Nodes;
 
 const DB_PATH: &str = "./data/db.json";
@@ -74,7 +74,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let search_term = "a";
     // let search_term = ";";
     // let search_term = "an";
-    let results = run_command(search_term);
+    let rip_grep = RipGrep::new("fn");
+    // let rip_grep = RipGrep { search_term: "fn" } ;
+    // let rip_grep = RipGrep { search_term: String::from("fn")} ;
+    let results = rip_grep.run_command();
     let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
 
     enable_raw_mode().expect("can run in raw mode");
@@ -165,7 +168,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
-                MenuItem::Home => rect.render_widget(render_home(), chunks[1]),
+                MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
+                // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
                     let pets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
@@ -219,19 +223,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn render_home<'a>() -> Paragraph<'a> {
+fn render_home<'a>(rip_grep_command: String) -> Paragraph<'a> {
     let home = Paragraph::new(vec![
         Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("Welcome")]),
+        Spans::from(vec![Span::raw(rip_grep_command)]),
         Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("to")]),
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::styled(
-            "pet-CLI",
-            Style::default().fg(Color::LightBlue),
-        )]),
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("Press 'p' to access pets, 'a' to add random new pets and 'd' to delete the currently selected pet.")]),
     ])
     .alignment(Alignment::Center)
     .block(
