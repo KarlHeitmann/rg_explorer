@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
+// Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::{
     text::{Span, Spans, Text},
     style::{Color, Modifier, Style},
@@ -81,14 +82,10 @@ impl Node {
         Table::new(
             self.r#match.iter().map(|m| {
                 Row::new(vec![
-                    Cell::from(Span::raw(m.line_match())),
-                    // Cell::from(Span::raw(&m.path.text)),
-                    Cell::from(Span::styled("My \n text", style)),
-                    // Cell::from(Span::raw(&m.path.text)),
+                    Cell::from(m.pretty_line_match()),
                     Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
-                    // Cell::from(Text::from("The first line\nThe second line")),
-                    Cell::from(Text::from(m.submatches_details())),
-                ]).height(m.total_submatches().try_into().unwrap())
+                ])
+                // ]).height(m.total_submatches().try_into().unwrap())
             })
         )
     }

@@ -293,14 +293,6 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>
             "Category",
             Style::default().add_modifier(Modifier::BOLD),
         )),
-        Cell::from(Span::styled(
-            "Age",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Created At",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
     ]))
     .block(
         Block::default()
@@ -310,10 +302,8 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>
             .border_type(BorderType::Plain),
     )
     .widths(&[
-        Constraint::Percentage(25),
-        Constraint::Percentage(25),
-        Constraint::Percentage(25),
-        Constraint::Percentage(25),
+        Constraint::Percentage(80),
+        Constraint::Percentage(20),
     ]);
 
     (list, pet_detail)

@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
+use tui::{
+    text::{Spans, Span},
+    style::{Style, Color},
+};
+
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Path {
@@ -96,6 +101,18 @@ pub struct Match {
 impl Match {
     pub fn line_match(&self) -> String {
         format!("{}:{}", self.line_number, self.lines.text)
+    }
+    pub fn pretty_line_match(&self) -> Spans {
+        let mut output = self.lines.text.clone();
+        let mut vs: Vec<Span> = vec![Span::raw(format!("{}:", self.line_number))];
+        for submatch in self.submatches.iter() {
+            let (left_side, output_rest) = output.split_once(&submatch.r#match.text).unwrap();
+            vs.push(Span::raw(left_side.to_string()));
+            vs.push(Span::styled(&submatch.r#match.text, Style::default().fg(Color::Yellow)));
+            output = output_rest.to_string();
+        }
+        vs.push(Span::raw(output));
+        Spans::from(vs)
     }
     pub fn total_submatches(&self) -> usize {
         self.submatches.len()
