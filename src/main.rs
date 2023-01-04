@@ -248,7 +248,7 @@ fn render_home<'a>() -> Paragraph<'a> {
     home
 }
 
-fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, Table<'a>) {
+fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
     let pets = Block::default()
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::White))
@@ -283,42 +283,14 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, T
             .add_modifier(Modifier::BOLD),
     );
 
-    let det = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
-
-    let pet_detail = Table::new(vec![Row::new(vec![
-        /*
-        Cell::from(Span::raw("id".to_string())), // FIXME
-        Cell::from(Span::raw("name".to_string())), // FIXME
-        Cell::from(Span::raw("category".to_string())), // FIXME
-        Cell::from(Span::raw("age".to_string())), // FIXME
-        Cell::from(Span::raw("created_at".to_string())), // FIXME
-        */
-        // let (id, name, category, age, created_at) = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
-        Cell::from(Span::raw(det.0)),
-        Cell::from(Span::raw(det.1)),
-        Cell::from(Span::raw(det.2)),
-        Cell::from(Span::raw(det.3)),
-        Cell::from(Span::raw(det.4)),
-    ])])
+    let pet_detail = selected_pet.detail()
     .header(Row::new(vec![
         Cell::from(Span::styled(
-            "ID",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Name",
+            "Lines",
             Style::default().add_modifier(Modifier::BOLD),
         )),
         Cell::from(Span::styled(
             "Category",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Age",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Created At",
             Style::default().add_modifier(Modifier::BOLD),
         )),
     ]))
@@ -330,10 +302,7 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, T
             .border_type(BorderType::Plain),
     )
     .widths(&[
-        Constraint::Percentage(5),
-        Constraint::Percentage(20),
-        Constraint::Percentage(20),
-        Constraint::Percentage(5),
+        Constraint::Percentage(80),
         Constraint::Percentage(20),
     ]);
 
