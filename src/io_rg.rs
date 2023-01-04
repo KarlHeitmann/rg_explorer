@@ -1,8 +1,11 @@
 use std::process::{Command, Stdio};
 use std::str;
 
-pub fn run_command() -> String {
-    let command = format!("fn --json");
+pub fn run_command(search_term: &str) -> String {
+    // let command = format!("fn --json");
+    let command = format!("{} --json", search_term);
+    // let command = format!("a --json");
+    // let command = format!("; --json");
     let child = Command::new("rg")
         .args(command.split(' '))
         .stdout(Stdio::piped())

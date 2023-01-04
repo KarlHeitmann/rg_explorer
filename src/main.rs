@@ -69,9 +69,13 @@ fn run(results: Vec<&str>) {
 */
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let main_nodes = read_db().expect("can't fetch nodes for rg explorer");
-    let results = run_command();
-    run(results.split("\n").collect::<Vec<&str>>());
+    // let main_nodes = read_db().expect("can't fetch nodes for rg explorer");
+    let search_term = "fn";
+    // let search_term = "a";
+    // let search_term = ";";
+    // let search_term = "an";
+    let results = run_command(search_term);
+    let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
 
     enable_raw_mode().expect("can run in raw mode");
 
@@ -186,15 +190,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 KeyCode::Char('h') => active_menu_item = MenuItem::Home,
                 KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                KeyCode::Char('a') => {
-                    add_random_pet_to_db().expect("can add new random pet");
-                }
-                KeyCode::Char('d') => {
-                    remove_pet_at_index(&mut pet_list_state).expect("can remove pet");
-                }
                 KeyCode::Down => {
                     if let Some(selected) = pet_list_state.selected() {
-                        // let amount_pets = read_db().expect("can fetch pet list").len();
                         let amount_pets = main_nodes.len();
                         if selected >= amount_pets - 1 {
                             pet_list_state.select(Some(0));
@@ -205,7 +202,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 KeyCode::Up => {
                     if let Some(selected) = pet_list_state.selected() {
-                        // let amount_pets = read_db().expect("can fetch pet list").len();
                         let amount_pets = main_nodes.len();
                         if selected > 0 {
                             pet_list_state.select(Some(selected - 1));
@@ -255,7 +251,6 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>
         .title("RG Explorer")
         .border_type(BorderType::Plain);
 
-    // let pet_list = read_db().expect("can fetch pet list");
     let pet_list = all_pets;
     let items: Vec<_> = pet_list
         .0.iter()
@@ -307,59 +302,5 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>
     ]);
 
     (list, pet_detail)
-}
-
-fn read_db() -> Result<Nodes, Error> {
-    // let db_content = fs::read_to_string(DB_PATH)?;
-    // let parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
-    let rs = run_command();
-    let parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
-    Ok(parsed)
-}
-
-fn add_random_pet_to_db() -> Result<Nodes, Error> {
-    let mut rng = rand::thread_rng();
-    // let db_content = fs::read_to_string(DB_PATH)?;
-    let rs = run_command();
-    // let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
-    // let mut parsed: Nodes = serde_json::from_str(&db_content)?;
-    let mut parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
-    let catsdogs = match rng.gen_range(0, 1) {
-        0 => "cats",
-        _ => "dogs",
-    };
-
-    /*
-    let random_pet = Pet {
-        id: rng.gen_range(0, 9999999),
-        name: rng.sample_iter(Alphanumeric).take(10).collect(),
-        category: catsdogs.to_owned(),
-        age: rng.gen_range(1, 15),
-        created_at: Utc::now(),
-    };
-
-    parsed.push(random_pet);
-    */
-    // fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
-    Ok(parsed)
-}
-
-fn remove_pet_at_index(pet_list_state: &mut ListState) -> Result<(), Error> {
-    if let Some(selected) = pet_list_state.selected() {
-        let db_content = fs::read_to_string(DB_PATH)?;
-        let rs = run_command();
-        // let mut parsed: Vec<Pet> = serde_json::from_str(&db_content)?;
-        // let mut parsed: Nodes = serde_json::from_str(&db_content)?;
-        let mut parsed: Nodes = run(rs.split("\n").collect::<Vec<&str>>());
-        // parsed.remove(selected);
-        // fs::write(DB_PATH, &serde_json::to_vec(&parsed)?)?;
-        let amount_pets = read_db().expect("can fetch pet list").len();
-        if selected > 0 {
-            pet_list_state.select(Some(selected - 1));
-        } else {
-            pet_list_state.select(Some(0));
-        }
-    }
-    Ok(())
 }
 
