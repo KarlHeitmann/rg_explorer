@@ -25,13 +25,13 @@ impl Display for Lines {
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Match {
+struct SubSubMatch { // TODO: change this name to match. You can keep on nesting data structures on src/nodes/node/match/submatch/etc as example
     text: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
-struct Submatch {
-    r#match: Match,
+struct Submatch { // TODO: change this name to match. You can keep on nesting data structures on src/nodes/node/match/submatch/etc as example
+    r#match: SubSubMatch,
     start: usize,
     end: usize,
 }
@@ -75,6 +75,21 @@ pub struct Begin {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct SubnodeBegin {
     pub data: Begin,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Match {
+    pub path: Path,
+    pub lines: Lines,
+    pub line_number: usize,
+    pub absolute_offset: usize,
+    submatches: Vec<Submatch>,
+    // binary_offset: Option<String>, // TODO: binary_offset I don't want to implement because I don't know exactly which type of data it is. More info here: https://docs.rs/grep-printer/0.1.6/grep_printer/struct.JSON.html#message-end
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SubnodeMatch {
+    pub data: Match,
 }
 
 

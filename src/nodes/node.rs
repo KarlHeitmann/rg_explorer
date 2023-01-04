@@ -6,7 +6,7 @@ pub mod r#type;
 pub use r#type::Type;
 
 pub mod data;
-pub use data::{Data, SubnodeBegin, Begin};
+pub use data::{Data, SubnodeBegin, SubnodeMatch, Begin, Match};
 
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -17,7 +17,7 @@ pub struct Node {
     begin: Begin,
     context: Option<Data>,
     // r#match: vec![Data],
-    r#match: Vec<Data>,
+    r#match: Vec<Match>,
     end: Data,
 }
 
@@ -25,7 +25,7 @@ impl Node {
     pub fn new(data_raw: Vec<(&str, Type)>) -> Self {
         // todo!();
         let mut begin: Option<Begin> = None;
-        let mut r#match: Vec<Data> = vec![];
+        let mut r#match: Vec<Match> = vec![];
         let mut context: Option<Data> = None;
         let mut end: Option<Data> = None;
         for (d, t) in data_raw {
@@ -35,7 +35,9 @@ impl Node {
                     begin = Some(sub_node_begin.data)
                 },
                 Type::r#match => {
-                    r#match.push(Self::parse_data(d).expect("match expected")) // XXX This can blow up
+                    let subnode_begin = Self::parse_subnode_match(d).expect("begin expected");
+                    // r#match.push(Self::parse_data(d).expect("match expected")) // XXX This can blow up
+                    r#match.push(subnode_begin.data) // XXX This can blow up
                 },
                 Type::context => {
                     context = Some(Self::parse_data(d).expect("context expected")); // XXX This can blow up
@@ -55,6 +57,10 @@ impl Node {
     }
     fn parse_subnode_begin(d: &str) -> Result<SubnodeBegin> {
         let n: SubnodeBegin = serde_json::from_str(d)?;
+        Ok(n)
+    }
+    fn parse_subnode_match(d: &str) -> Result<SubnodeMatch> {
+        let n: SubnodeMatch = serde_json::from_str(d)?;
         Ok(n)
     }
     fn parse_data(d: &str) -> Result<Data> {
@@ -87,7 +93,7 @@ impl Node {
             _ => (String::from(""), String::new(), String::new(), String::new(), String::new())
         }
         */
-        // TODO
+        /*
         (
             // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").to_string(),
             // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").human.to_string(),
@@ -95,6 +101,17 @@ impl Node {
             String::new(),
             String::new(),
             String::new(),
+            String::new(),
+        )
+            */
+        // TODO
+        (
+            // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").to_string(),
+            // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").human.to_string(),
+            self.r#match.first().unwrap().path.text.to_string(),
+            self.r#match.first().unwrap().lines.to_string(),
+            self.r#match.first().unwrap().line_number.to_string(),
+            self.r#match.first().unwrap().absolute_offset.to_string(),
             String::new(),
         )
     }
