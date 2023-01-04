@@ -283,22 +283,17 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, T
             .add_modifier(Modifier::BOLD),
     );
 
-    let det = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
+    let selected_node_detail = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
 
-    let pet_detail = Table::new(vec![Row::new(vec![
-        /*
-        Cell::from(Span::raw("id".to_string())), // FIXME
-        Cell::from(Span::raw("name".to_string())), // FIXME
-        Cell::from(Span::raw("category".to_string())), // FIXME
-        Cell::from(Span::raw("age".to_string())), // FIXME
-        Cell::from(Span::raw("created_at".to_string())), // FIXME
-        */
-        // let (id, name, category, age, created_at) = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
-        Cell::from(Span::raw(det.0)),
-        Cell::from(Span::raw(det.1)),
-        Cell::from(Span::raw(det.2)),
-        Cell::from(Span::raw(det.3)),
-        Cell::from(Span::raw(det.4)),
+    let pet_detail = Table::new(vec![Row::new(vec![ // TODO: Here is a Row. Bring all these Cell::,
+                                                    // Span:: and use it in a function in Node,
+                                                    // that transforms the Vector of matches into a
+                                                    // Vector of Cell:: and Span::
+        Cell::from(Span::raw(selected_node_detail.0)),
+        Cell::from(Span::raw(selected_node_detail.1)),
+        Cell::from(Span::raw(selected_node_detail.2)),
+        Cell::from(Span::raw(selected_node_detail.3)),
+        Cell::from(Span::raw(selected_node_detail.4)),
     ])])
     .header(Row::new(vec![
         Cell::from(Span::styled(
