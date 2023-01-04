@@ -31,17 +31,17 @@ pub struct Nodes(pub Vec<Node>);
 impl Nodes {
     pub fn new(data_raw: Vec<&str>) -> Self {
         let mut v: Nodes = Nodes { 0: vec![]};
-        let mut aux_vecs: Vec<&str> = vec![];
+        let mut aux_vecs: Vec<(&str, Type)> = vec![];
         // let mut current_node = Node();
 
         for d in data_raw {
             let t = Self::parse_type(d).expect("Error parsing type at first level. Expected begin, match, end, context or summary");
             match t.r#type {
                 Type::begin | Type::r#match | Type::summary => {
-                    aux_vecs.push(d)
+                    aux_vecs.push((d, t.r#type))
                 },
                 Type::end => {
-                    aux_vecs.push(d);
+                    aux_vecs.push((d, t.r#type));
                     let n: Node = Node::new(aux_vecs);
                     v.0.push(n);
                     aux_vecs = vec![];
@@ -69,10 +69,6 @@ impl Nodes {
 
     fn parse_type(d: &str) -> Result<AuxType> {
         let n: AuxType = serde_json::from_str(d)?;
-        Ok(n)
-    }
-    fn parse_data(d: &str) -> Result<Node> {
-        let n: Node = serde_json::from_str(d)?;
         Ok(n)
     }
 }
