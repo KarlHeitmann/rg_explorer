@@ -6,7 +6,7 @@ pub mod r#type;
 pub use r#type::Type;
 
 pub mod data;
-pub use data::Data;
+pub use data::{Data, SubnodeBegin, Begin};
 
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -14,7 +14,7 @@ pub struct Node {
     // pub r#type: Type,
     // r#type: Type,
     // data: Data,
-    begin: Data,
+    begin: Begin,
     context: Option<Data>,
     // r#match: vec![Data],
     r#match: Vec<Data>,
@@ -24,14 +24,15 @@ pub struct Node {
 impl Node {
     pub fn new(data_raw: Vec<(&str, Type)>) -> Self {
         // todo!();
-        let mut begin: Option<Data> = None;
+        let mut begin: Option<Begin> = None;
         let mut r#match: Vec<Data> = vec![];
         let mut context: Option<Data> = None;
         let mut end: Option<Data> = None;
         for (d, t) in data_raw {
             match t {
                 Type::begin => {
-                    begin = Some(Self::parse_data(d).expect("begin expected")); // XXX This can blow up
+                    let sub_node_begin = Self::parse_subnode_begin(d).expect("begin expected");
+                    begin = Some(sub_node_begin.data)
                 },
                 Type::r#match => {
                     r#match.push(Self::parse_data(d).expect("match expected")) // XXX This can blow up
@@ -51,6 +52,10 @@ impl Node {
             context,
             end: end.unwrap(),
         }
+    }
+    fn parse_subnode_begin(d: &str) -> Result<SubnodeBegin> {
+        let n: SubnodeBegin = serde_json::from_str(d)?;
+        Ok(n)
     }
     fn parse_data(d: &str) -> Result<Data> {
         let n: Data = serde_json::from_str(d)?;
@@ -82,6 +87,7 @@ impl Node {
             _ => (String::from(""), String::new(), String::new(), String::new(), String::new())
         }
         */
+        // TODO
         (
             // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").to_string(),
             // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").human.to_string(),
@@ -93,8 +99,10 @@ impl Node {
         )
     }
     pub fn summary(&self) -> String {
+        // TODO
         // self.r#type.to_string()
-        "".to_string()
+        self.begin.path.text.to_string()
+        // "".to_string()
     }
 }
 

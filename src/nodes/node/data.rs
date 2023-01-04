@@ -4,7 +4,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Path {
-    text: String,
+    pub text: String,
 }
 
 impl Display for Path {
@@ -65,6 +65,16 @@ pub struct Data {
     // binary_offset: Option<String>, // TODO: binary_offset I don't want to implement because I don't know exactly which type of data it is. More info here: https://docs.rs/grep-printer/0.1.6/grep_printer/struct.JSON.html#message-end
     stats: Option<Stats>,
     pub elapsed_total: Option<Elapsed>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Begin {
+    pub path: Path,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SubnodeBegin {
+    pub data: Begin,
 }
 
 
