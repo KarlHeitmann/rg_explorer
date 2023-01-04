@@ -1,95 +1,11 @@
 use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-#[derive(Serialize, Deserialize, Debug)]
-#[allow(non_camel_case_types)]
-enum Type {
-    begin,
-    r#match,
-    end,
-    context,
-    summary,
-}
+pub mod r#type;
+pub use r#type::Type;
 
-impl Display for Type {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        let s = match self {
-            Self::begin => "Begin",
-            Self::r#match => "Match",
-            Self::end => "End",
-            Self::context => "Context",
-            Self::summary => "Summary",
-        };
-        write!(f, "{}", s)
-    }
-}
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-#[derive(Serialize, Deserialize, Debug)]
-struct Path {
-    text: String,
-}
-
-impl Display for Path {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.text)
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Lines {
-    text: String,
-}
-
-impl Display for Lines {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "{}", self.text)
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Match {
-    text: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Submatch {
-    r#match: Match,
-    start: usize,
-    end: usize,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Elapsed {
-    secs: usize,
-    nanos: usize,
-    human: String,
-}
-
-#[derive(Serialize, Deserialize, Debug)]
-struct Stats {
-    elapsed: Elapsed,
-    searches: usize,
-    searches_with_match: usize,
-    bytes_searched: usize,
-    bytes_printed: usize,
-    matched_lines: usize,
-    matches: usize,
-}
-
-// #[derive(Serialize, Deserialize, Debug, Clone)]
-#[derive(Serialize, Deserialize, Debug)]
-struct Data {
-    path: Option<Path>,
-    lines: Option<Lines>,
-    line_number: Option<usize>,
-    absolute_offset: Option<usize>,
-    submatches: Option<Vec<Submatch>>,
-    // binary_offset: Option<String>, // TODO: binary_offset I don't want to implement because I don't know exactly which type of data it is. More info here: https://docs.rs/grep-printer/0.1.6/grep_printer/struct.JSON.html#message-end
-    stats: Option<Stats>,
-    elapsed_total: Option<Elapsed>,
-}
+pub mod data;
+pub use data::Data;
 
 // #[derive(Serialize, Deserialize, Debug, Clone)]
 #[derive(Serialize, Deserialize, Debug)]
@@ -111,6 +27,15 @@ impl Node {
                 // "age".to_string(),
                 String::new(),
                 // "created_at".to_string()
+            ),
+            Type::summary => (
+                // self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").to_string(),
+                self.data.elapsed_total.as_ref().expect("data.elapsed_total is None").human.to_string(),
+                // String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
+                String::new(),
             ),
             // _ => ("".to_string(), "".to_string(), "".to_string(), "".to_string(), "".to_string())
             _ => (String::from(""), String::new(), String::new(), String::new(), String::new())
