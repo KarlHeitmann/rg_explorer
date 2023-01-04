@@ -248,7 +248,7 @@ fn render_home<'a>() -> Paragraph<'a> {
     home
 }
 
-fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, Table<'a>) {
+fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
     let pets = Block::default()
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::White))
@@ -283,25 +283,10 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, T
             .add_modifier(Modifier::BOLD),
     );
 
-    let selected_node_detail = selected_pet.detail(); // FIXME: pet is outdated name, not real name: "Node"
-
-    let pet_detail = Table::new(vec![Row::new(vec![ // TODO: Here is a Row. Bring all these Cell::,
-                                                    // Span:: and use it in a function in Node,
-                                                    // that transforms the Vector of matches into a
-                                                    // Vector of Cell:: and Span::
-        Cell::from(Span::raw(selected_node_detail.0)),
-        Cell::from(Span::raw(selected_node_detail.1)),
-        Cell::from(Span::raw(selected_node_detail.2)),
-        Cell::from(Span::raw(selected_node_detail.3)),
-        Cell::from(Span::raw(selected_node_detail.4)),
-    ])])
+    let pet_detail = selected_pet.detail()
     .header(Row::new(vec![
         Cell::from(Span::styled(
-            "ID",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Name",
+            "Lines",
             Style::default().add_modifier(Modifier::BOLD),
         )),
         Cell::from(Span::styled(
@@ -325,10 +310,9 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &Nodes) -> (List<'a>, T
             .border_type(BorderType::Plain),
     )
     .widths(&[
-        Constraint::Percentage(5),
         Constraint::Percentage(20),
         Constraint::Percentage(20),
-        Constraint::Percentage(5),
+        Constraint::Percentage(10),
         Constraint::Percentage(20),
     ]);
 

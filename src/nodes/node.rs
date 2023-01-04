@@ -2,6 +2,13 @@ use serde::{Deserialize, Serialize};
 use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
+use tui::{
+    text::{Span},
+    widgets::{
+        Cell, Row, Table,
+    },
+};
+
 pub mod r#type;
 pub use r#type::Type;
 
@@ -61,14 +68,16 @@ impl Node {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
     }
-    pub fn detail(&self) -> (String, String, String, String, String) {
-        // TODO: Put on some meaningful data here, loop over the r#match vector!
-        (
-            self.r#match.first().unwrap().path.text.to_string(),
-            self.r#match.first().unwrap().lines.to_string(),
-            self.r#match.first().unwrap().line_number.to_string(),
-            self.r#match.first().unwrap().absolute_offset.to_string(),
-            String::new(),
+    pub fn detail(&self) -> Table {
+        Table::new(
+            self.r#match.iter().map(|m| {
+                Row::new(vec![
+                    Cell::from(Span::raw(&m.lines.text)),
+                    Cell::from(Span::raw(&m.path.text)),
+                    Cell::from(Span::raw(&m.path.text)),
+                    Cell::from(Span::raw(&m.path.text)),
+                ])
+            })
         )
     }
     pub fn summary(&self) -> String {

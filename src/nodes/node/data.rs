@@ -15,7 +15,7 @@ impl Display for Path {
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Lines {
-    text: String,
+    pub text: String,
 }
 
 impl Display for Lines {
