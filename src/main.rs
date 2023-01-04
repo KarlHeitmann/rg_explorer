@@ -310,10 +310,10 @@ fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>
             .border_type(BorderType::Plain),
     )
     .widths(&[
-        Constraint::Percentage(20),
-        Constraint::Percentage(20),
-        Constraint::Percentage(10),
-        Constraint::Percentage(20),
+        Constraint::Percentage(25),
+        Constraint::Percentage(25),
+        Constraint::Percentage(25),
+        Constraint::Percentage(25),
     ]);
 
     (list, pet_detail)

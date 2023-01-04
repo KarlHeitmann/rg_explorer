@@ -3,7 +3,8 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
 use tui::{
-    text::{Span},
+    text::{Span, Spans, Text},
+    style::{Color, Modifier, Style},
     widgets::{
         Cell, Row, Table,
     },
@@ -69,14 +70,25 @@ impl Node {
         Ok(n)
     }
     pub fn detail(&self) -> Table {
+        let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
+        /*
+        let spans = Spans::from(vec![
+            Span::styled("My", Style::default().fg(Color::Yellow)),
+            Span::raw(" text"),
+        ]);
+        Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])
+        */
         Table::new(
             self.r#match.iter().map(|m| {
                 Row::new(vec![
-                    Cell::from(Span::raw(&m.lines.text)),
-                    Cell::from(Span::raw(&m.path.text)),
-                    Cell::from(Span::raw(&m.path.text)),
-                    Cell::from(Span::raw(&m.path.text)),
-                ])
+                    Cell::from(Span::raw(m.line_match())),
+                    // Cell::from(Span::raw(&m.path.text)),
+                    Cell::from(Span::styled("My \n text", style)),
+                    // Cell::from(Span::raw(&m.path.text)),
+                    Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
+                    // Cell::from(Text::from("The first line\nThe second line")),
+                    Cell::from(Text::from(m.submatches_details())),
+                ]).height(m.total_submatches().try_into().unwrap())
             })
         )
     }

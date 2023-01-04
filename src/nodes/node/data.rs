@@ -36,6 +36,12 @@ struct Submatch { // TODO: change this name to match. You can keep on nesting da
     end: usize,
 }
 
+impl Submatch {
+    pub fn submatches_details(&self) -> String {
+        todo!();
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Elapsed {
     secs: usize,
@@ -85,6 +91,23 @@ pub struct Match {
     pub absolute_offset: usize,
     submatches: Vec<Submatch>,
     // binary_offset: Option<String>, // TODO: binary_offset I don't want to implement because I don't know exactly which type of data it is. More info here: https://docs.rs/grep-printer/0.1.6/grep_printer/struct.JSON.html#message-end
+}
+
+impl Match {
+    pub fn line_match(&self) -> String {
+        format!("{}:{}", self.line_number, self.lines.text)
+    }
+    pub fn total_submatches(&self) -> usize {
+        self.submatches.len()
+    }
+    pub fn submatches_details(&self) -> String {
+        // self.submatches.submatches_details()
+        let mut output = String::new();
+        for submatch in self.submatches.iter() {
+            output.push_str(&format!("{}\n", submatch.r#match.text));
+        }
+        output
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug)]
