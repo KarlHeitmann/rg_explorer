@@ -32,7 +32,6 @@ impl Nodes {
     pub fn new(data_raw: Vec<&str>) -> Self {
         let mut v: Nodes = Nodes { 0: vec![]};
         let mut aux_vecs: Vec<(&str, Type)> = vec![];
-        // let mut current_node = Node();
 
         for d in data_raw {
             let t = Self::parse_type(d).expect("Error parsing type at first level. Expected begin, match, end, context or summary");
@@ -48,16 +47,6 @@ impl Nodes {
                 }
                 _ => {}
             }
-            /*
-            match n {
-                // Ok(val) => v.0.push(val),
-                Ok(val) => {
-                    match val {
-                    }
-                },
-                Err(e) => println!("{e:?}\n{}", d),
-            }
-            */
         }
         v
     }
