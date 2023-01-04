@@ -13,9 +13,17 @@ pub struct Node {
     // pub r#type: Type,
     r#type: Type,
     data: Data,
+    begin: Data,
+    // r#match: vec![Data],
+    r#match: Vec<Data>,
+    end: Data,
 }
 
 impl Node {
+    pub fn new(data_raw: Vec<&str>) -> Self {
+        // todo!();
+        todo!();
+    }
     pub fn detail(&self) -> (String, String, String, String, String) {
         match self.r#type {
             Type::r#match => (
