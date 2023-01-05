@@ -1,11 +1,8 @@
 use crossterm::{
-    event::{self, Event as CEvent, KeyCode},
+    event::{self, Event, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
 use std::io;
-use std::sync::mpsc;
-use std::thread;
-use std::time::{Duration, Instant};
 use thiserror::Error;
 use tui::{
     backend::CrosstermBackend,
@@ -30,11 +27,6 @@ pub enum Error {
     ReadDBError(#[from] io::Error),
     #[error("error parsing the DB file: {0}")]
     ParseDBError(#[from] serde_json::Error),
-}
-
-enum Event<I> {
-    Input(I),
-    Tick,
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -132,30 +124,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     enable_raw_mode().expect("can run in raw mode");
 
-    let (tx, rx) = mpsc::channel();
-    // let tick_rate = Duration::from_millis(2000);
-    let tick_rate = Duration::from_millis(200); // TODO // XXX tick is not necessary. This app should respond only to user input, not a tick to refresh
-    thread::spawn(move || {
-        let mut last_tick = Instant::now();
-        loop {
-            let timeout = tick_rate
-                .checked_sub(last_tick.elapsed())
-                .unwrap_or_else(|| Duration::from_secs(0));
-
-            if event::poll(timeout).expect("poll works") {
-                if let CEvent::Key(key) = event::read().expect("can read events") {
-                    tx.send(Event::Input(key)).expect("can send events");
-                }
-            }
-
-            if last_tick.elapsed() >= tick_rate { // This if block makes everything "change", cos it's actually updating. Comment the block to not get so confused with the TUI
-                if let Ok(_) = tx.send(Event::Tick) {
-                    last_tick = Instant::now();
-                }
-            }
-        }
-    });
-
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
@@ -195,51 +163,51 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             rect.render_widget(copyright, chunks[2]);
         })?;
 
-        match active_menu_item {
-            MenuItem::Edit => match rx.recv()? { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
-                _ => {
+        if let Event::Key(key) = event::read()? {
+            match key.code {
+                KeyCode::Char('h') => active_menu_item = MenuItem::Home,
+                KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
+                KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
+                KeyCode::Down => {
+                    if let Some(selected) = pet_list_state.selected() {
+                        let amount_pets = main_nodes.len();
+                        if selected >= amount_pets - 1 {
+                            pet_list_state.select(Some(0));
+                        } else {
+                            pet_list_state.select(Some(selected + 1));
+                        }
+                    }
+                }
+                KeyCode::Up => {
+                    if let Some(selected) = pet_list_state.selected() {
+                        let amount_pets = main_nodes.len();
+                        if selected > 0 {
+                            pet_list_state.select(Some(selected - 1));
+                        } else {
+                            pet_list_state.select(Some(amount_pets - 1));
+                        }
+                    }
+                }
+                KeyCode::Char('q') => {
                     disable_raw_mode()?;
                     terminal.show_cursor()?;
                     break;
                 }
-            },
-            _ => {
-                match rx.recv()? {
-                    Event::Input(event) => match event.code {
-                        KeyCode::Char('q') => {
-                            disable_raw_mode()?;
-                            terminal.show_cursor()?;
-                            break;
-                        }
-                        KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                        KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                        KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
-                        KeyCode::Down => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
-                                if selected >= amount_pets - 1 {
-                                    pet_list_state.select(Some(0));
-                                } else {
-                                    pet_list_state.select(Some(selected + 1));
-                                }
-                            }
-                        }
-                        KeyCode::Up => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
-                                if selected > 0 {
-                                    pet_list_state.select(Some(selected - 1));
-                                } else {
-                                    pet_list_state.select(Some(amount_pets - 1));
-                                }
-                            }
-                        }
-                        _ => {}
-                    },
-                    Event::Tick => {}
+                _ => {}
+            }
+            match active_menu_item {
+                /*
+                MenuItem::Edit => match rx.recv()? { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
+                    _ => {
+                        disable_raw_mode()?;
+                        terminal.show_cursor()?;
+                        break;
+                    }
+                },
+                */
+                _ => {
                 }
-            },
-
+            }
         }
     }
 
