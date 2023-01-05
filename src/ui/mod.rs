@@ -7,6 +7,10 @@ use tui::{
     },
 };
 
+pub mod home;
+pub mod edit;
+pub mod nodes;
+
 use crate::MenuItem;
 
 pub fn get_layout_chunks(size: Rect) -> Vec<Rect> {

@@ -6,12 +6,8 @@ use std::io;
 use thiserror::Error;
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table,
-    },
+    layout::{Constraint, Direction, Layout},
+    widgets::ListState,
     Terminal,
 };
 
@@ -21,6 +17,9 @@ mod ui;
 mod io_rg;
 use crate::io_rg::RipGrep;
 use crate::nodes::Nodes;
+use crate::ui::home::render_home;
+use crate::ui::edit::render_edit;
+use crate::ui::nodes::render_nodes;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -93,7 +92,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
                         )
                         .split(chunks[1]);
-                    let (left, right) = render_pets(&pet_list_state, &main_nodes);
+                    let (left, right) = render_nodes(&pet_list_state, &main_nodes);
                     rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
                     rect.render_widget(right, pets_chunks[1]);
                 },
@@ -151,114 +150,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
-}
-
-fn render_home<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    let home = Paragraph::new(vec![
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw(rip_grep_command)]),
-        Spans::from(vec![Span::raw("")]),
-    ])
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Home")
-            .border_type(BorderType::Plain),
-    );
-    home
-}
-
-fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    /*
-    let input = Paragraph::new(app.input.as_ref()) // app.input is a String
-        .style(match app.input_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-        })
-        .block(Block::default().borders(Borders::ALL).title("Input"));
-    */
-    let input = Paragraph::new(vec![
-            Spans::from(vec![Span::raw(rip_grep_command)]),
-            Spans::from(vec![Span::raw("INPUT this should be mutable")]),
-        ]) // app.input is a String
-        .style(Style::default().fg(Color::Yellow))
-        .block(Block::default().borders(Borders::ALL).title("Input"));
-
-    let _home = Paragraph::new(vec![
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("Edit")]),
-        Spans::from(vec![Span::raw("")]),
-    ])
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Home")
-            .border_type(BorderType::Plain),
-    );
-    input
-}
-
-fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
-    let pets = Block::default()
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::White))
-        .title("RG Explorer")
-        .border_type(BorderType::Plain);
-
-    let pet_list = all_pets;
-    let items: Vec<_> = pet_list
-        .0.iter()
-        .map(|node| {
-            ListItem::new(Spans::from(vec![Span::styled(
-                node.summary(), // TODO: replace by something like "pet," or pet.name.clone(), memorare: pet.name was a String!!!
-                Style::default(),
-            )]))
-        })
-        .collect();
-
-    let selected_pet = pet_list
-        .0.get(
-            pet_list_state
-                .selected()
-                .expect("there is always a selected pet"),
-        )
-        .expect("exists")
-        .clone();
-
-    let list = List::new(items).block(pets).highlight_style(
-        Style::default()
-            .bg(Color::Yellow)
-            .fg(Color::Black)
-            .add_modifier(Modifier::BOLD),
-    );
-
-    let pet_detail = selected_pet.detail()
-    .header(Row::new(vec![
-        Cell::from(Span::styled(
-            "Lines",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Category",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-    ]))
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Detail")
-            .border_type(BorderType::Plain),
-    )
-    .widths(&[
-        Constraint::Percentage(80),
-        Constraint::Percentage(20),
-    ]);
-
-    (list, pet_detail)
 }
 
