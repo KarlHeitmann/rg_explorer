@@ -164,48 +164,48 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })?;
 
         if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
-                KeyCode::Down => {
-                    if let Some(selected) = pet_list_state.selected() {
-                        let amount_pets = main_nodes.len();
-                        if selected >= amount_pets - 1 {
-                            pet_list_state.select(Some(0));
-                        } else {
-                            pet_list_state.select(Some(selected + 1));
-                        }
-                    }
-                }
-                KeyCode::Up => {
-                    if let Some(selected) = pet_list_state.selected() {
-                        let amount_pets = main_nodes.len();
-                        if selected > 0 {
-                            pet_list_state.select(Some(selected - 1));
-                        } else {
-                            pet_list_state.select(Some(amount_pets - 1));
-                        }
-                    }
-                }
-                KeyCode::Char('q') => {
-                    disable_raw_mode()?;
-                    terminal.show_cursor()?;
-                    break;
-                }
-                _ => {}
-            }
             match active_menu_item {
-                /*
-                MenuItem::Edit => match rx.recv()? { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
-                    _ => {
-                        disable_raw_mode()?;
-                        terminal.show_cursor()?;
-                        break;
+                MenuItem::Edit => { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
+                    match key.code {
+                        _ => {
+                            disable_raw_mode()?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
                     }
                 },
-                */
                 _ => {
+                    match key.code {
+                        KeyCode::Char('h') => active_menu_item = MenuItem::Home,
+                        KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
+                        KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
+                        KeyCode::Down => {
+                            if let Some(selected) = pet_list_state.selected() {
+                                let amount_pets = main_nodes.len();
+                                if selected >= amount_pets - 1 {
+                                    pet_list_state.select(Some(0));
+                                } else {
+                                    pet_list_state.select(Some(selected + 1));
+                                }
+                            }
+                        }
+                        KeyCode::Up => {
+                            if let Some(selected) = pet_list_state.selected() {
+                                let amount_pets = main_nodes.len();
+                                if selected > 0 {
+                                    pet_list_state.select(Some(selected - 1));
+                                } else {
+                                    pet_list_state.select(Some(amount_pets - 1));
+                                }
+                            }
+                        }
+                        KeyCode::Char('q') => {
+                            disable_raw_mode()?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
+                        _ => {}
+                    }
                 }
             }
         }
