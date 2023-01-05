@@ -41,12 +41,6 @@ struct Submatch { // TODO: change this name to match. You can keep on nesting da
     end: usize,
 }
 
-impl Submatch {
-    pub fn submatches_details(&self) -> String {
-        todo!();
-    }
-}
-
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Elapsed {
     secs: usize,
@@ -99,9 +93,6 @@ pub struct Match {
 }
 
 impl Match {
-    pub fn line_match(&self) -> String {
-        format!("{}:{}", self.line_number, self.lines.text)
-    }
     pub fn pretty_line_match(&self) -> Spans {
         let mut output = self.lines.text.clone();
         let mut vs: Vec<Span> = vec![Span::raw(format!("{}:", self.line_number))];
@@ -113,17 +104,6 @@ impl Match {
         }
         vs.push(Span::raw(output));
         Spans::from(vs)
-    }
-    pub fn total_submatches(&self) -> usize {
-        self.submatches.len()
-    }
-    pub fn submatches_details(&self) -> String {
-        // self.submatches.submatches_details()
-        let mut output = String::new();
-        for submatch in self.submatches.iter() {
-            output.push_str(&format!("{}\n", submatch.r#match.text));
-        }
-        output
     }
 }
 

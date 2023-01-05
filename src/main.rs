@@ -1,11 +1,7 @@
-use chrono::prelude::*;
 use crossterm::{
     event::{self, Event as CEvent, KeyCode},
     terminal::{disable_raw_mode, enable_raw_mode},
 };
-use rand::{distributions::Alphanumeric, prelude::*};
-use serde::{Deserialize, Serialize};
-use std::fs;
 use std::io;
 use std::sync::mpsc;
 use std::thread;
@@ -27,8 +23,6 @@ mod nodes;
 mod io_rg;
 use crate::io_rg::RipGrep;
 use crate::nodes::Nodes;
-
-const DB_PATH: &str = "./data/db.json";
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -76,7 +70,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let search_term = "a";
     // let search_term = ";";
     // let search_term = "an";
-    let rip_grep = RipGrep::new("fn");
+    let rip_grep = RipGrep::new(search_term);
     // let rip_grep = RipGrep { search_term: "fn" } ;
     // let rip_grep = RipGrep { search_term: String::from("fn")} ;
     let results = rip_grep.run_command();

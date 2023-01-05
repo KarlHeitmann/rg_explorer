@@ -4,8 +4,8 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::{
-    text::{Span, Spans, Text},
-    style::{Color, Modifier, Style},
+    text::{Span, Spans},
+    style::{Color, Style},
     widgets::{
         Cell, Row, Table,
     },
@@ -71,7 +71,6 @@ impl Node {
         Ok(n)
     }
     pub fn detail(&self) -> Table {
-        let style = Style::default().fg(Color::Yellow).add_modifier(Modifier::ITALIC);
         /*
         let spans = Spans::from(vec![
             Span::styled("My", Style::default().fg(Color::Yellow)),
