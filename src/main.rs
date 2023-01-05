@@ -9,7 +9,7 @@ use std::time::{Duration, Instant};
 use thiserror::Error;
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout},
+    layout::{Alignment, Constraint, Direction, Layout, Rect},
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{
@@ -64,6 +64,59 @@ fn run(results: Vec<&str>) {
 }
 */
 
+fn get_layout_chunk(size: Rect) -> Vec<Rect> {
+    Layout::default()
+        .direction(Direction::Vertical)
+        .margin(2)
+        .constraints(
+            [
+                Constraint::Length(3),
+                Constraint::Min(2),
+                Constraint::Length(3),
+            ]
+            .as_ref(),
+        )
+        .split(size)
+}
+
+fn draw_menu_tabs(menu_titles: Vec<&str>, active_menu_item: MenuItem) -> Tabs {
+    let menu = menu_titles
+        .iter()
+        .map(|t| {
+            let (first, rest) = t.split_at(1);
+            Spans::from(vec![
+                Span::styled(
+                    first,
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::UNDERLINED),
+                ),
+                Span::styled(rest, Style::default().fg(Color::White)),
+            ])
+        })
+        .collect();
+
+    Tabs::new(menu)
+        .select(active_menu_item.into())
+        .block(Block::default().title("Menu").borders(Borders::ALL))
+        .style(Style::default().fg(Color::White))
+        .highlight_style(Style::default().fg(Color::Yellow))
+        .divider(Span::raw("|"))
+}
+
+fn draw_copyright<'layout>() -> Paragraph<'layout> {
+    Paragraph::new("pet-CLI 2020 - all rights reserved")
+        .style(Style::default().fg(Color::LightCyan))
+        .alignment(Alignment::Center)
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .title("Copyright")
+                .border_type(BorderType::Plain),
+        )
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let main_nodes = read_db().expect("can't fetch nodes for rg explorer");
     let search_term = "fn";
@@ -107,61 +160,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
     // let mut active_menu_item = MenuItem::Home;
     let mut active_menu_item = MenuItem::Edit;
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
 
     loop {
+        let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
         terminal.draw(|rect| {
-            let size = rect.size();
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(2)
-                .constraints(
-                    [
-                        Constraint::Length(3),
-                        Constraint::Min(2),
-                        Constraint::Length(3),
-                    ]
-                    .as_ref(),
-                )
-                .split(size);
+            let chunks = get_layout_chunk(rect.size());
 
-            let copyright = Paragraph::new("pet-CLI 2020 - all rights reserved")
-                .style(Style::default().fg(Color::LightCyan))
-                .alignment(Alignment::Center)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .style(Style::default().fg(Color::White))
-                        .title("Copyright")
-                        .border_type(BorderType::Plain),
-                );
+            let copyright = draw_copyright();
 
-            let menu = menu_titles
-                .iter()
-                .map(|t| {
-                    let (first, rest) = t.split_at(1);
-                    Spans::from(vec![
-                        Span::styled(
-                            first,
-                            Style::default()
-                                .fg(Color::Yellow)
-                                .add_modifier(Modifier::UNDERLINED),
-                        ),
-                        Span::styled(rest, Style::default().fg(Color::White)),
-                    ])
-                })
-                .collect();
-
-            let tabs = Tabs::new(menu)
-                .select(active_menu_item.into())
-                .block(Block::default().title("Menu").borders(Borders::ALL))
-                .style(Style::default().fg(Color::White))
-                .highlight_style(Style::default().fg(Color::Yellow))
-                .divider(Span::raw("|"));
+            let tabs = draw_menu_tabs(menu_titles, active_menu_item);
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
