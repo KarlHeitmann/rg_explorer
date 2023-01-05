@@ -1,30 +1,46 @@
+use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::process::{Command, Stdio};
 use std::str;
 
-pub fn run_command() -> String {
-    let command = format!("fn --json");
-    let child = Command::new("rg")
-        .args(command.split(' '))
-        .stdout(Stdio::piped())
-        .spawn()
-        .expect("failed to execute child");
-    let output = child
-        .wait_with_output()
-        .expect("failed to wait on child");
+pub struct RipGrep {
+    search_term: String,
+}
+impl RipGrep {
+    pub fn new(search_term: String) -> Self {
+        Self {
+            search_term
+        }
+    }
+    pub fn run_command(&self) -> String {
+        let command = format!("{} --json", self.search_term);
+        let child = Command::new("rg")
+            .args(command.split(' '))
+            .stdout(Stdio::piped())
+            .spawn()
+            .expect("failed to execute child");
+        let output = child
+            .wait_with_output()
+            .expect("failed to wait on child");
 
-    assert!(output.status.success());
-    let s = match str::from_utf8(&output.stdout) {
-        Ok(v) => v,
-        Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
-    };
-    strip_trailing_newline(s).to_string()
+        assert!(output.status.success());
+        let s = match str::from_utf8(&output.stdout) {
+            Ok(v) => v,
+            Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
+        };
+        Self::strip_trailing_newline(s).to_string()
+    }
+
+    fn strip_trailing_newline(input: &str) -> &str {
+        input
+            .strip_suffix("\r\n")
+            .or(input.strip_suffix("\n"))
+            .unwrap_or(input)
+    }
 }
 
-fn strip_trailing_newline(input: &str) -> &str {
-    input
-        .strip_suffix("\r\n")
-        .or(input.strip_suffix("\n"))
-        .unwrap_or(input)
+impl Display for RipGrep {
+    fn fmt(&self, f: &mut Formatter) -> FmtResult {
+        write!(f, "rg {} --json", self.search_term)
+    }
 }
-
 
