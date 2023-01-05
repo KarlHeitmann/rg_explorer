@@ -2,11 +2,11 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use std::process::{Command, Stdio};
 use std::str;
 
-pub struct RipGrep<'a> {
-    search_term: &'a str,
+pub struct RipGrep {
+    search_term: String,
 }
-impl<'a> RipGrep<'a> {
-    pub fn new(search_term: &'a str) -> Self {
+impl RipGrep {
+    pub fn new(search_term: String) -> Self {
         Self {
             search_term
         }
@@ -38,7 +38,7 @@ impl<'a> RipGrep<'a> {
     }
 }
 
-impl Display for RipGrep<'_> {
+impl Display for RipGrep {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "rg {} --json", self.search_term)
     }

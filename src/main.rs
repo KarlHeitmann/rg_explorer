@@ -79,7 +79,8 @@ fn get_layout_chunk(size: Rect) -> Vec<Rect> {
         .split(size)
 }
 
-fn draw_menu_tabs(menu_titles: Vec<&str>, active_menu_item: MenuItem) -> Tabs {
+// fn draw_menu_tabs(menu_titles: &Vec<&str>, active_menu_item: MenuItem) -> Tabs {
+fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuItem) -> Tabs<'a> {
     let menu = menu_titles
         .iter()
         .map(|t| {
@@ -123,7 +124,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // let search_term = "a";
     // let search_term = ";";
     // let search_term = "an";
-    let rip_grep = RipGrep::new(search_term);
+    let rip_grep = RipGrep::new(search_term.to_string()); // TODO Create default
     // let rip_grep = RipGrep { search_term: "fn" } ;
     // let rip_grep = RipGrep { search_term: String::from("fn")} ;
     let results = rip_grep.run_command();
@@ -133,7 +134,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let (tx, rx) = mpsc::channel();
     // let tick_rate = Duration::from_millis(2000);
-    let tick_rate = Duration::from_millis(200);
+    let tick_rate = Duration::from_millis(200); // TODO // XXX tick is not necessary. This app should respond only to user input, not a tick to refresh
     thread::spawn(move || {
         let mut last_tick = Instant::now();
         loop {
@@ -160,19 +161,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    // let mut active_menu_item = MenuItem::Home;
-    let mut active_menu_item = MenuItem::Edit;
+    let mut active_menu_item = MenuItem::Home;
+    // let mut active_menu_item = MenuItem::Edit;
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
+    let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
 
     loop {
-        let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
         terminal.draw(|rect| {
             let chunks = get_layout_chunk(rect.size());
 
             let copyright = draw_copyright();
 
-            let tabs = draw_menu_tabs(menu_titles, active_menu_item);
+            let tabs = draw_menu_tabs(&menu_titles, active_menu_item);
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
@@ -194,39 +195,51 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             rect.render_widget(copyright, chunks[2]);
         })?;
 
-        match rx.recv()? {
-            Event::Input(event) => match event.code {
-                KeyCode::Char('q') => {
+        match active_menu_item {
+            MenuItem::Edit => match rx.recv()? { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
+                _ => {
                     disable_raw_mode()?;
                     terminal.show_cursor()?;
                     break;
                 }
-                KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
-                KeyCode::Down => {
-                    if let Some(selected) = pet_list_state.selected() {
-                        let amount_pets = main_nodes.len();
-                        if selected >= amount_pets - 1 {
-                            pet_list_state.select(Some(0));
-                        } else {
-                            pet_list_state.select(Some(selected + 1));
-                        }
-                    }
-                }
-                KeyCode::Up => {
-                    if let Some(selected) = pet_list_state.selected() {
-                        let amount_pets = main_nodes.len();
-                        if selected > 0 {
-                            pet_list_state.select(Some(selected - 1));
-                        } else {
-                            pet_list_state.select(Some(amount_pets - 1));
-                        }
-                    }
-                }
-                _ => {}
             },
-            Event::Tick => {}
+            _ => {
+                match rx.recv()? {
+                    Event::Input(event) => match event.code {
+                        KeyCode::Char('q') => {
+                            disable_raw_mode()?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
+                        KeyCode::Char('h') => active_menu_item = MenuItem::Home,
+                        KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
+                        KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
+                        KeyCode::Down => {
+                            if let Some(selected) = pet_list_state.selected() {
+                                let amount_pets = main_nodes.len();
+                                if selected >= amount_pets - 1 {
+                                    pet_list_state.select(Some(0));
+                                } else {
+                                    pet_list_state.select(Some(selected + 1));
+                                }
+                            }
+                        }
+                        KeyCode::Up => {
+                            if let Some(selected) = pet_list_state.selected() {
+                                let amount_pets = main_nodes.len();
+                                if selected > 0 {
+                                    pet_list_state.select(Some(selected - 1));
+                                } else {
+                                    pet_list_state.select(Some(amount_pets - 1));
+                                }
+                            }
+                        }
+                        _ => {}
+                    },
+                    Event::Tick => {}
+                }
+            },
+
         }
     }
 
@@ -251,7 +264,22 @@ fn render_home<'a>(rip_grep_command: String) -> Paragraph<'a> {
 }
 
 fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    let home = Paragraph::new(vec![
+    /*
+    let input = Paragraph::new(app.input.as_ref()) // app.input is a String
+        .style(match app.input_mode {
+            InputMode::Normal => Style::default(),
+            InputMode::Editing => Style::default().fg(Color::Yellow),
+        })
+        .block(Block::default().borders(Borders::ALL).title("Input"));
+    */
+    let input = Paragraph::new(vec![
+            Spans::from(vec![Span::raw(rip_grep_command)]),
+            Spans::from(vec![Span::raw("INPUT this should be mutable")]),
+        ]) // app.input is a String
+        .style(Style::default().fg(Color::Yellow))
+        .block(Block::default().borders(Borders::ALL).title("Input"));
+
+    let _home = Paragraph::new(vec![
         Spans::from(vec![Span::raw("")]),
         Spans::from(vec![Span::raw("Edit")]),
         Spans::from(vec![Span::raw("")]),
@@ -264,7 +292,7 @@ fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
             .title("Home")
             .border_type(BorderType::Plain),
     );
-    home
+    input
 }
 
 fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
