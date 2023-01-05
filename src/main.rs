@@ -47,6 +47,7 @@ enum Event<I> {
 enum MenuItem {
     Home,
     Nodes,
+    Edit,
 }
 
 impl From<MenuItem> for usize {
@@ -54,6 +55,7 @@ impl From<MenuItem> for usize {
         match input {
             MenuItem::Home => 0,
             MenuItem::Nodes => 1,
+            MenuItem::Edit => 2,
         }
     }
 }
@@ -111,8 +113,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    let menu_titles = vec!["Home", "Nodes", "Add", "Delete", "Quit"];
-    let mut active_menu_item = MenuItem::Home;
+    let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
+    // let mut active_menu_item = MenuItem::Home;
+    let mut active_menu_item = MenuItem::Edit;
     let mut pet_list_state = ListState::default();
     pet_list_state.select(Some(0));
 
@@ -180,7 +183,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     let (left, right) = render_pets(&pet_list_state, &main_nodes);
                     rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
                     rect.render_widget(right, pets_chunks[1]);
-                }
+                },
+                MenuItem::Edit => rect.render_widget(render_edit(rip_grep.to_string()), chunks[1]),
             }
             rect.render_widget(copyright, chunks[2]);
         })?;
@@ -194,6 +198,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
                 KeyCode::Char('h') => active_menu_item = MenuItem::Home,
                 KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
+                KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
                 KeyCode::Down => {
                     if let Some(selected) = pet_list_state.selected() {
                         let amount_pets = main_nodes.len();
@@ -227,6 +232,23 @@ fn render_home<'a>(rip_grep_command: String) -> Paragraph<'a> {
     let home = Paragraph::new(vec![
         Spans::from(vec![Span::raw("")]),
         Spans::from(vec![Span::raw(rip_grep_command)]),
+        Spans::from(vec![Span::raw("")]),
+    ])
+    .alignment(Alignment::Center)
+    .block(
+        Block::default()
+            .borders(Borders::ALL)
+            .style(Style::default().fg(Color::White))
+            .title("Home")
+            .border_type(BorderType::Plain),
+    );
+    home
+}
+
+fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
+    let home = Paragraph::new(vec![
+        Spans::from(vec![Span::raw("")]),
+        Spans::from(vec![Span::raw("Edit")]),
         Spans::from(vec![Span::raw("")]),
     ])
     .alignment(Alignment::Center)
