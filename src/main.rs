@@ -78,15 +78,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Nodes => {
                     rip_grep.run();
                     let main_nodes = &mut rip_grep.nodes;
-                    let pets_chunks = Layout::default()
-                        .direction(Direction::Horizontal)
-                        .constraints(
-                            [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
-                        )
-                        .split(chunks[1]);
-                    let (left, right) = render_nodes(&pet_list_state, &main_nodes);
-                    rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
-                    rect.render_widget(right, pets_chunks[1]);
+                    if main_nodes.len() == 0{
+                        // TODO: Put a message saying no results
+                    } else {
+                        let pets_chunks = Layout::default()
+                            .direction(Direction::Horizontal)
+                            .constraints(
+                                [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
+                            )
+                            .split(chunks[1]);
+                        let (left, right) = render_nodes(&pet_list_state, &main_nodes);
+                        rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
+                        rect.render_widget(right, pets_chunks[1]);
+                    }
                 },
                 MenuItem::Edit => rect.render_widget(render_edit(rip_grep.to_string()), chunks[1]),
             }
