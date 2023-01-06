@@ -14,8 +14,7 @@ use tui::{
 mod nodes;
 mod ui;
 
-mod io_rg;
-use crate::io_rg::RipGrep;
+// use crate::io_rg::RipGrep;
 use crate::nodes::Nodes;
 use crate::ui::home::render_home;
 use crate::ui::edit::render_edit;
@@ -52,7 +51,7 @@ fn run(results: Vec<&str>) -> Nodes {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let search_term = "fn";
-    let mut rip_grep = RipGrep::new(search_term.to_string()); // TODO Create default
+    let mut rip_grep = nodes::RipGrep::new(search_term.to_string()); // TODO Create default
     let mut app = ui::App::default();
     let results = rip_grep.run_command();
     let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
