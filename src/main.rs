@@ -45,16 +45,11 @@ impl From<MenuItem> for usize {
     }
 }
 
-fn run(results: Vec<&str>) -> Nodes {
-    Nodes::new(results)
-}
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let search_term = "fn";
     let mut rip_grep = nodes::RipGrep::new(search_term.to_string()); // TODO Create default
     let mut app = ui::App::default();
-    let results = rip_grep.run_command();
-    let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
+    let main_nodes = &rip_grep.nodes;
 
     enable_raw_mode().expect("can run in raw mode");
 
@@ -81,8 +76,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
                 // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
-                    let results = rip_grep.run_command();
-                    let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
+                    // let main_nodes = rip_grep.run();
+                    let main_nodes = &rip_grep.nodes;
                     let pets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
                         .constraints(

@@ -80,16 +80,19 @@ impl Display for Nodes {
 
 pub struct RipGrep {
     pub search_term: String,
+    pub nodes: Nodes,
 }
 
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
+
         Self {
-            search_term
+            nodes: Nodes::new(Self::launch_rg(&search_term).split("\n").collect::<Vec<&str>>()),
+            search_term,
         }
     }
-    pub fn run_command(&self) -> String {
-        let command = format!("{} --json", self.search_term);
+    fn launch_rg(search_term: &String) -> String {
+        let command = format!("{} --json", search_term);
         let child = Command::new("rg")
             .args(command.split(' '))
             .stdout(Stdio::piped())
@@ -105,6 +108,12 @@ impl RipGrep {
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
         Self::strip_trailing_newline(s).to_string()
+    }
+
+    pub fn run(&mut self) {
+        let res = Self::launch_rg(&self.search_term);
+        let res = res.split("\n").collect::<Vec<&str>>();
+        self.nodes = Nodes::new(res);
     }
 
     fn strip_trailing_newline(input: &str) -> &str {
