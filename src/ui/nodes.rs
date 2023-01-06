@@ -9,64 +9,61 @@ use tui::{
 
 use crate::Nodes;
 
-pub fn render_nodes<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
-    let pets = Block::default()
+pub fn render_nodes<'a>(node_list_state: &ListState, nodes: &'a Nodes) -> (List<'a>, Table<'a>) {
+    let nodes_block:Block = Block::default()
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::White))
         .title("RG Explorer")
         .border_type(BorderType::Plain);
 
-    let pet_list = all_pets;
-    let items: Vec<_> = pet_list
+    let items: Vec<_> = nodes
         .0.iter()
         .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
-                node.summary(), // TODO: replace by something like "pet," or pet.name.clone(), memorare: pet.name was a String!!!
+                node.summary(),
                 Style::default(),
             )]))
         })
         .collect();
 
-    let selected_pet = pet_list
-        .0.get(
-            pet_list_state
-                .selected()
-                .expect("there is always a selected pet"),
-        )
-        .expect("exists")
-        .clone();
-
-    let list = List::new(items).block(pets).highlight_style(
+    let list = List::new(items).block(nodes_block).highlight_style(
         Style::default()
             .bg(Color::Yellow)
             .fg(Color::Black)
             .add_modifier(Modifier::BOLD),
     );
 
-    let pet_detail = selected_pet.detail()
-    .header(Row::new(vec![
-        Cell::from(Span::styled(
-            "Lines",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Category",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-    ]))
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Detail")
-            .border_type(BorderType::Plain),
-    )
-    .widths(&[
-        Constraint::Percentage(80),
-        Constraint::Percentage(20),
-    ]);
+    let node_detail = nodes
+        .0.get(
+            node_list_state
+                .selected()
+                .expect("there is always a selected node"),
+        )
+        .expect("exists")
+        .detail()
+        .header(Row::new(vec![
+            Cell::from(Span::styled(
+                "Lines",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+            Cell::from(Span::styled(
+                "Category",
+                Style::default().add_modifier(Modifier::BOLD),
+            )),
+        ]))
+        .block(
+            Block::default()
+                .borders(Borders::ALL)
+                .style(Style::default().fg(Color::White))
+                .title("Detail")
+                .border_type(BorderType::Plain),
+        )
+        .widths(&[
+            Constraint::Percentage(80),
+            Constraint::Percentage(20),
+        ]);
 
-    (list, pet_detail)
+    (list, node_detail)
 }
 
 
