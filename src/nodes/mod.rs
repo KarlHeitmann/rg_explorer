@@ -79,9 +79,8 @@ impl Display for Nodes {
 }
 
 pub struct RipGrep {
-    pub search_term: String,
-    search_term_buffer: String, // TODO: This is the buffer. While editing change this buffer. Run
-                                // will run only if search_term_buffer is different search_term
+    search_term: String,
+    pub search_term_buffer: String,
     pub nodes: Nodes,
 }
 
@@ -114,9 +113,12 @@ impl RipGrep {
     }
 
     pub fn run(&mut self) {
-        let res = Self::launch_rg(&self.search_term);
-        let res = res.split("\n").collect::<Vec<&str>>();
-        self.nodes = Nodes::new(res);
+        if self.search_term != self.search_term_buffer {
+            self.search_term = self.search_term_buffer.clone();
+            let res = Self::launch_rg(&self.search_term);
+            let res = res.split("\n").collect::<Vec<&str>>();
+            self.nodes = Nodes::new(res);
+        }
     }
 
     fn strip_trailing_newline(input: &str) -> &str {
@@ -129,7 +131,7 @@ impl RipGrep {
 
 impl Display for RipGrep {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "rg {} --json", self.search_term)
+        write!(f, "rg {} --json", self.search_term_buffer)
     }
 }
 

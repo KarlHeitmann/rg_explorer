@@ -131,10 +131,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         ui::InputMode::Editing => {
                             match key.code {
                                 KeyCode::Char(c) => {
-                                    rip_grep.search_term.push(c)
+                                    rip_grep.search_term_buffer.push(c)
                                 },
                                 KeyCode::Backspace => {
-                                    rip_grep.search_term.pop();
+                                    rip_grep.search_term_buffer.pop();
                                 }
                                 _ => {}
                             }
