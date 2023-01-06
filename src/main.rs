@@ -49,7 +49,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let search_term = "fn";
     let mut rip_grep = nodes::RipGrep::new(search_term.to_string()); // TODO Create default
     let mut app = ui::App::default();
-    let main_nodes = &rip_grep.nodes;
 
     enable_raw_mode().expect("can run in raw mode");
 
@@ -65,6 +64,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     loop {
         terminal.draw(|rect| {
+            let rip_grep = &mut rip_grep;
             let chunks = ui::get_layout_chunks(rect.size());
 
             let status_bar = ui::draw_status_bar(app.get_input_mode());
@@ -76,8 +76,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
                 // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
-                    // let main_nodes = rip_grep.run();
-                    let main_nodes = &rip_grep.nodes;
+                    rip_grep.run();
+                    let main_nodes = &mut rip_grep.nodes;
                     let pets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
                         .constraints(
@@ -145,7 +145,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     match key.code {
                         KeyCode::Down => {
                             if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
+                                let amount_pets = rip_grep.nodes.len();
                                 if selected >= amount_pets - 1 {
                                     pet_list_state.select(Some(0));
                                 } else {
@@ -155,7 +155,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                         KeyCode::Up => {
                             if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
+                                let amount_pets = rip_grep.nodes.len();
                                 if selected > 0 {
                                     pet_list_state.select(Some(selected - 1));
                                 } else {

@@ -80,6 +80,8 @@ impl Display for Nodes {
 
 pub struct RipGrep {
     pub search_term: String,
+    search_term_buffer: String, // TODO: This is the buffer. While editing change this buffer. Run
+                                // will run only if search_term_buffer is different search_term
     pub nodes: Nodes,
 }
 
@@ -88,6 +90,7 @@ impl RipGrep {
 
         Self {
             nodes: Nodes::new(Self::launch_rg(&search_term).split("\n").collect::<Vec<&str>>()),
+            search_term_buffer: search_term.clone(),
             search_term,
         }
     }
