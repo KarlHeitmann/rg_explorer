@@ -99,7 +99,6 @@ impl RipGrep {
                 search_term,
             }
         }
-        
     }
     fn launch_rg(search_term: &String) -> Option<String> {
         let command = format!("{} --json", search_term);

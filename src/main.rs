@@ -92,7 +92,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         rect.render_widget(right, pets_chunks[1]);
                     }
                 },
-                MenuItem::Edit => rect.render_widget(render_edit(rip_grep.to_string()), chunks[1]),
+                MenuItem::Edit => {
+                    let (first, second, edit_chunks) = render_edit(&rip_grep, chunks[1], app.get_input_mode());
+                    rect.render_widget(first, edit_chunks[0]);
+                    rect.render_widget(second, edit_chunks[1]);
+                    match app.get_input_mode() {
+                        ui::InputMode::Editing => { 
+                            rect.set_cursor(
+                                edit_chunks[0].x + rip_grep.search_term_buffer.len() as u16 + 1,
+                                edit_chunks[0].y + 1,
+                            )
+
+                        },
+                        _ => {},
+                    }
+                },
             }
             rect.render_widget(status_bar, chunks[2]);
         })?;
@@ -104,6 +118,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         KeyCode::Char('h') => Some(MenuItem::Home),
                         KeyCode::Char('n') => Some(MenuItem::Nodes),
                         KeyCode::Char('e') => Some(MenuItem::Edit),
+                        KeyCode::Char('q') => {
+                            disable_raw_mode()?;
+                            terminal.show_cursor()?;
+                            break;
+                        }
                         _ => None,
                     };
                     match menu_item {
@@ -166,11 +185,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                     pet_list_state.select(Some(amount_pets - 1));
                                 }
                             }
-                        }
-                        KeyCode::Char('q') => {
-                            disable_raw_mode()?;
-                            terminal.show_cursor()?;
-                            break;
                         }
                         _ => {}
                     }

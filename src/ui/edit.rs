@@ -2,41 +2,46 @@ use tui::{
     layout::Alignment,
     style::{Color, Style},
     text::{Span, Spans},
+    layout::{Constraint, Direction, Layout, Rect},
     widgets::{
         Block, BorderType, Borders, Paragraph,
     },
 };
 
-pub fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    /*
-    let input = Paragraph::new(app.input.as_ref()) // app.input is a String
-        .style(match app.input_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-        })
-        .block(Block::default().borders(Borders::ALL).title("Input"));
-    */
+use crate::ui::InputMode;
+use crate::nodes::RipGrep;
+
+pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
+    let color = match input_mode {
+        InputMode::Normal => Color::Gray,
+        InputMode::Editing => Color::Red,
+    };
+    let edit_chunks = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(
+            [Constraint::Length(3),Constraint::Min(3)]
+        )
+        .split(chunk);
+
     let input = Paragraph::new(vec![
-            Spans::from(vec![Span::raw(rip_grep_command)]),
+            Spans::from(vec![Span::raw(&rip_grep_command.search_term_buffer)]),
             Spans::from(vec![Span::raw("INPUT this should be mutable")]),
         ]) // app.input is a String
-        .style(Style::default().fg(Color::Yellow))
-        .block(Block::default().borders(Borders::ALL).title("Input"));
+        .style(Style::default().fg(color))
+        .block(Block::default().borders(Borders::ALL).title("Search term"));
 
-    let _home = Paragraph::new(vec![
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("Edit")]),
-        Spans::from(vec![Span::raw("")]),
+    let home = Paragraph::new(vec![
+        Spans::from(vec![Span::raw(rip_grep_command.to_string())]),
     ])
-    .alignment(Alignment::Center)
+    .alignment(Alignment::Left)
     .block(
         Block::default()
             .borders(Borders::ALL)
             .style(Style::default().fg(Color::White))
-            .title("Home")
+            .title("Rip Grep command to be executed:")
             .border_type(BorderType::Plain),
     );
-    input
+    (input, home, edit_chunks)
 }
 
 
