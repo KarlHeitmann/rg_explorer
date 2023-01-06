@@ -3,7 +3,7 @@ use std::process::{Command, Stdio};
 use std::str;
 
 pub struct RipGrep {
-    search_term: String,
+    pub search_term: String,
 }
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
@@ -22,7 +22,7 @@ impl RipGrep {
             .wait_with_output()
             .expect("failed to wait on child");
 
-        assert!(output.status.success());
+        assert!(output.status.success()); // Catch failing case: no matches, rg exits with status code 1
         let s = match str::from_utf8(&output.stdout) {
             Ok(v) => v,
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),

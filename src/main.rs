@@ -52,12 +52,8 @@ fn run(results: Vec<&str>) -> Nodes {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let search_term = "fn";
-    // let search_term = "a";
-    // let search_term = ";";
-    // let search_term = "an";
-    let rip_grep = RipGrep::new(search_term.to_string()); // TODO Create default
-    // let rip_grep = RipGrep { search_term: "fn" } ;
-    // let rip_grep = RipGrep { search_term: String::from("fn")} ;
+    let mut rip_grep = RipGrep::new(search_term.to_string()); // TODO Create default
+    let mut app = ui::App::default();
     let results = rip_grep.run_command();
     let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
 
@@ -77,7 +73,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         terminal.draw(|rect| {
             let chunks = ui::get_layout_chunks(rect.size());
 
-            let copyright = ui::draw_copyright();
+            let status_bar = ui::draw_status_bar(app.get_input_mode());
 
             let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item);
 
@@ -86,6 +82,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
                 // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
+                    let results = rip_grep.run_command();
+                    let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
                     let pets_chunks = Layout::default()
                         .direction(Direction::Horizontal)
                         .constraints(
@@ -98,18 +96,56 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 },
                 MenuItem::Edit => rect.render_widget(render_edit(rip_grep.to_string()), chunks[1]),
             }
-            rect.render_widget(copyright, chunks[2]);
+            rect.render_widget(status_bar, chunks[2]);
         })?;
 
         if let Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
-                _ => {}
+            match app.get_input_mode() {
+                ui::InputMode::Normal => {
+                    let menu_item: Option<MenuItem> = match key.code {
+                        KeyCode::Char('h') => Some(MenuItem::Home),
+                        KeyCode::Char('n') => Some(MenuItem::Nodes),
+                        KeyCode::Char('e') => Some(MenuItem::Edit),
+                        _ => None,
+                    };
+                    match menu_item {
+                        Some(menu_item) => {
+                            active_menu_item = menu_item;
+                            continue;
+                        },
+                        _ => {},
+                    }
+                },
+                ui::InputMode::Editing => {
+                    match key.code {
+                        KeyCode::Esc|KeyCode::F(2) => { app.set_input_mode(ui::InputMode::Normal); continue; } // Gets traped in vim
+                        _ => {}
+                    }
+                },
             }
             match active_menu_item {
-                MenuItem::Edit => { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
+                MenuItem::Edit => {
+                    match app.get_input_mode() {
+                        ui::InputMode::Normal => {
+                            match key.code {
+                                KeyCode::Char('i') => {
+                                    app.set_input_mode(ui::InputMode::Editing);
+                                },
+                                _ => {}
+                            }
+                        },
+                        ui::InputMode::Editing => {
+                            match key.code {
+                                KeyCode::Char(c) => {
+                                    rip_grep.search_term.push(c)
+                                },
+                                KeyCode::Backspace => {
+                                    rip_grep.search_term.pop();
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
                 },
                 _ => {
                     match key.code {

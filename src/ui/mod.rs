@@ -13,6 +13,33 @@ pub mod nodes;
 
 use crate::MenuItem;
 
+#[derive(Clone, Copy)]
+pub enum InputMode {
+    Normal,
+    Editing,
+}
+
+pub struct App {
+    input_mode: InputMode,
+}
+
+impl Default for App {
+    fn default() -> App {
+        App {
+            input_mode: InputMode::Normal,
+        }
+    }
+}
+
+impl App {
+    pub fn get_input_mode(&self) -> InputMode {
+        self.input_mode
+    }
+    pub fn set_input_mode(&mut self, input_mode: InputMode) {
+        self.input_mode = input_mode;
+    }
+}
+
 pub fn get_layout_chunks(size: Rect) -> Vec<Rect> {
     Layout::default()
         .direction(Direction::Vertical)
@@ -54,15 +81,19 @@ pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuI
         .divider(Span::raw("|"))
 }
 
-pub fn draw_copyright<'layout>() -> Paragraph<'layout> {
-    Paragraph::new("pet-CLI 2020 - all rights reserved")
-        .style(Style::default().fg(Color::LightCyan))
+pub fn draw_status_bar<'layout>(input_mode: InputMode) -> Paragraph<'layout> {
+    let (title, color) = match input_mode {
+        InputMode::Normal =>  ("NORMAL MODE", Color::LightCyan),
+        InputMode::Editing => ("-Insert mode-", Color::Red),
+    };
+    Paragraph::new(title)
+        .style(Style::default().fg(color))
         .alignment(Alignment::Center)
         .block(
             Block::default()
                 .borders(Borders::ALL)
                 .style(Style::default().fg(Color::White))
-                .title("Copyright")
+                .title("Status")
                 .border_type(BorderType::Plain),
         )
 }
