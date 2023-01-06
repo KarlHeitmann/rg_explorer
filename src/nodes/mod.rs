@@ -86,14 +86,22 @@ pub struct RipGrep {
 
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
-
-        Self {
-            nodes: Nodes::new(Self::launch_rg(&search_term).split("\n").collect::<Vec<&str>>()),
-            search_term_buffer: search_term.clone(),
-            search_term,
+        let data_raw = Self::launch_rg(&search_term);
+        match data_raw {
+            Some(data_raw) => Self {
+                nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>()),
+                search_term_buffer: search_term.clone(),
+                search_term,
+            },
+            None => Self {
+                nodes: Nodes::new(vec![]),
+                search_term_buffer: search_term.clone(),
+                search_term,
+            }
         }
+        
     }
-    fn launch_rg(search_term: &String) -> String {
+    fn launch_rg(search_term: &String) -> Option<String> {
         let command = format!("{} --json", search_term);
         let child = Command::new("rg")
             .args(command.split(' '))
@@ -104,20 +112,44 @@ impl RipGrep {
             .wait_with_output()
             .expect("failed to wait on child");
 
-        assert!(output.status.success()); // Catch failing case: no matches, rg exits with status code 1
+        // assert!(output.status.success()); // Catch failing case: no matches, rg exits with status code 1
         let s = match str::from_utf8(&output.stdout) {
             Ok(v) => v,
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
         };
-        Self::strip_trailing_newline(s).to_string()
+        if s == "" { return None; }
+        Some(Self::strip_trailing_newline(s).to_string())
     }
 
     pub fn run(&mut self) {
         if self.search_term != self.search_term_buffer {
+            /*
+            self.search_term = self.search_term_buffer.clone();
+            let res = match Self::launch_rg(&self.search_term) {
+                Some(s) => { s.split("\n").collect::<Vec<&str>>(); },
+                None => { vec![]; }
+            };
+            self.nodes = Nodes::new(res);
+            */
+
+            /*
             self.search_term = self.search_term_buffer.clone();
             let res = Self::launch_rg(&self.search_term);
             let res = res.split("\n").collect::<Vec<&str>>();
             self.nodes = Nodes::new(res);
+            */
+
+            self.search_term = self.search_term_buffer.clone();
+            let res = Self::launch_rg(&self.search_term);
+            match res {
+                Some(res) => {
+                    let res = res.split("\n").collect::<Vec<&str>>();
+                    self.nodes = Nodes::new(res);
+                },
+                None => {
+                    self.nodes = Nodes::new(vec![])
+                }
+            }
         }
     }
 
