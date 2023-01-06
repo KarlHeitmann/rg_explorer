@@ -164,6 +164,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
                 },
+                MenuItem::Nodes => {
+                    match key.code {
+                        KeyCode::Left => {
+                        },
+                        KeyCode::Right => {
+                        },
+                        _ => {}
+                    }
+                },
                 _ => {
                     match key.code {
                         KeyCode::Down => {

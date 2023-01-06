@@ -82,28 +82,41 @@ pub struct RipGrep {
     search_term: String,
     pub search_term_buffer: String,
     pub nodes: Nodes,
+    after_context: usize,
+    before_context: usize,
 }
 
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
-        let data_raw = Self::launch_rg(&search_term);
+        let after_context = 0;
+        let before_context = 0;
+        // let args = format!("{} --json", search_term);
+        let args = format!("{search_term} --json");
+        let data_raw = Self::launch_rg(args);
+        // let data_raw = Self::launch_rg(format!("{} --json -A {} -B {}", &search_term, after_context, before_context));
         match data_raw {
             Some(data_raw) => Self {
                 nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>()),
                 search_term_buffer: search_term.clone(),
                 search_term,
+                after_context, before_context,
             },
             None => Self {
                 nodes: Nodes::new(vec![]),
                 search_term_buffer: search_term.clone(),
                 search_term,
+                after_context, before_context,
             }
         }
     }
-    fn launch_rg(search_term: &String) -> Option<String> {
-        let command = format!("{} --json", search_term);
+    pub fn set_context(&mut self) {
+        
+    }
+    // fn launch_rg(arguments: &String) -> Option<String> {
+    fn launch_rg(arguments: String) -> Option<String> {
+        // let command = format!("{} --json -A {} -B {}", arguments, );
         let child = Command::new("rg")
-            .args(command.split(' '))
+            .args(arguments.split(' '))
             .stdout(Stdio::piped())
             .spawn()
             .expect("failed to execute child");
@@ -139,7 +152,10 @@ impl RipGrep {
             */
 
             self.search_term = self.search_term_buffer.clone();
-            let res = Self::launch_rg(&self.search_term);
+            // let args = format!("{} --json", self.search_term);
+            let search_term = &self.search_term;
+            let args = format!("{search_term} --json");
+            let res = Self::launch_rg(args);
             match res {
                 Some(res) => {
                     let res = res.split("\n").collect::<Vec<&str>>();
