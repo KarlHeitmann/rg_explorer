@@ -88,10 +88,10 @@ pub struct RipGrep {
 
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
-        let after_context = 0;
-        let before_context = 0;
+        let after_context = 1;
+        let before_context = 1;
         // let args = format!("{} --json", search_term);
-        let args = format!("{search_term} --json");
+        let args = format!("{search_term} --json -A {after_context} -B {before_context}");
         let data_raw = Self::launch_rg(args);
         // let data_raw = Self::launch_rg(format!("{} --json -A {} -B {}", &search_term, after_context, before_context));
         match data_raw {
@@ -135,26 +135,12 @@ impl RipGrep {
 
     pub fn run(&mut self) {
         if self.search_term != self.search_term_buffer {
-            /*
-            self.search_term = self.search_term_buffer.clone();
-            let res = match Self::launch_rg(&self.search_term) {
-                Some(s) => { s.split("\n").collect::<Vec<&str>>(); },
-                None => { vec![]; }
-            };
-            self.nodes = Nodes::new(res);
-            */
-
-            /*
-            self.search_term = self.search_term_buffer.clone();
-            let res = Self::launch_rg(&self.search_term);
-            let res = res.split("\n").collect::<Vec<&str>>();
-            self.nodes = Nodes::new(res);
-            */
-
             self.search_term = self.search_term_buffer.clone();
             // let args = format!("{} --json", self.search_term);
-            let search_term = &self.search_term;
-            let args = format!("{search_term} --json");
+            // let search_term = &self.search_term;
+            let (search_term, after_context, before_context) = (&self.search_term, &self.after_context, &self.before_context);
+            // let args = format!("{search_term} --json");
+            let args = format!("{search_term} --json -A {after_context} -B {before_context}");
             let res = Self::launch_rg(args);
             match res {
                 Some(res) => {
@@ -165,6 +151,17 @@ impl RipGrep {
                     self.nodes = Nodes::new(vec![])
                 }
             }
+        }
+    }
+
+    pub fn raw_output(&self) -> String {
+        let (search_term, after_context, before_context) = (&self.search_term, &self.after_context, &self.before_context);
+        let args = format!("{search_term} --json -A {after_context} -B {before_context}");
+        // let res:String = Self::launch_rg(args);
+        let res = Self::launch_rg(args);
+        match res {
+            Some(res) => format!("{res}"),
+            None => String::from("No results :(")
         }
     }
 

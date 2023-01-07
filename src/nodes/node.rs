@@ -15,12 +15,12 @@ pub mod r#type;
 pub use r#type::Type;
 
 pub mod data;
-pub use data::{Data, SubnodeBegin, SubnodeMatch, Begin, Match};
+pub use data::{Data, SubnodeBegin, SubnodeMatch, SubnodeContext, Begin, Match, Context};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
     begin: Begin,
-    context: Option<Data>,
+    context: Vec<Context>, // Option<Data>,
     r#match: Vec<Match>,
     end: Data,
 }
@@ -30,7 +30,7 @@ impl Node {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
         let mut r#match: Vec<Match> = vec![];
-        let mut context: Option<Data> = None;
+        let mut context: Vec<Context> = vec![];
         let mut end: Option<Data> = None;
         for (d, t) in data_raw {
             match t {
@@ -39,11 +39,13 @@ impl Node {
                     begin = Some(sub_node_begin.data)
                 },
                 Type::r#match => {
-                    let subnode_begin = Self::parse_subnode_match(d).expect("begin expected");
+                    let subnode_begin = Self::parse_subnode_match(d).expect("match expected");
                     r#match.push(subnode_begin.data) // XXX This can blow up
                 },
                 Type::context => {
-                    context = Some(Self::parse_data(d).expect("context expected")); // XXX This can blow up
+                    // context = Some(Self::parse_data(d).expect("context expected")); // XXX This can blow up
+                    let subnode_context = Self::parse_subnode_context(d).expect("context expected");
+                    context.push(subnode_context.data);
                 },
                 Type::end => {
                     end = Some(Self::parse_data(d).expect("end expected")); // XXX This can blow up
@@ -64,6 +66,10 @@ impl Node {
     }
     fn parse_subnode_match(d: &str) -> Result<SubnodeMatch> {
         let n: SubnodeMatch = serde_json::from_str(d)?;
+        Ok(n)
+    }
+    fn parse_subnode_context(d: &str) -> Result<SubnodeContext> {
+        let n: SubnodeContext = serde_json::from_str(d)?;
         Ok(n)
     }
     fn parse_data(d: &str) -> Result<Data> {

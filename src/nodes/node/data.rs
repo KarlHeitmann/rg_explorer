@@ -112,4 +112,19 @@ pub struct SubnodeMatch {
     pub data: Match,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct SubnodeContext {
+    pub data: Context,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Context {
+    path: Path,
+    lines: Lines,
+    line_number: usize,
+    absolute_offset: usize,
+    submatches: Vec<SubSubMatch>,
+}
+
+
 
