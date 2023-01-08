@@ -35,7 +35,8 @@ pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: I
         // Spans::from(vec![Span::raw(rip_grep_command.raw_output())]),
         Spans::from(vec![Span::raw(rip_grep_command.raw_output())]),
     ])
-    .wrap(Wrap { trim: true })
+    .wrap(Wrap { trim: false })
+    // .wrap(Wrap { trim: true })
     .alignment(Alignment::Left)
     .block(
         Block::default()

@@ -76,7 +76,7 @@ impl Node {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
     }
-    pub fn detail(&self) -> Table {
+    pub fn detail(&self, before_context: usize, after_context: usize) -> Table {
         /*
         let spans = Spans::from(vec![
             Span::styled("My", Style::default().fg(Color::Yellow)),
@@ -84,7 +84,19 @@ impl Node {
         ]);
         Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])
         */
+        let mut data: Vec<String> = vec![];
+        // self.context.iter().map().col
+        // let aux_context = self.context.iter().map(|c| {c.lines.text}).collect();
+        // let aux_context: &mut Vec<String> = self.context.iter()
+        let mut aux_context: Vec<String> = self.context.iter()
+            .map(|c| {c.lines.text})
+            .collect();
+        data.append(&mut aux_context);
+        // vec.push(self.r)
         Table::new(
+        // let data = vec![];
+
+        // Table::new(
             self.r#match.iter().map(|m| {
                 Row::new(vec![
                     Cell::from(m.pretty_line_match()),

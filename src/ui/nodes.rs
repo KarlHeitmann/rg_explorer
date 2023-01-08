@@ -7,16 +7,17 @@ use tui::{
     },
 };
 
-use crate::Nodes;
+use crate::nodes::RipGrep;
 
-pub fn render_nodes<'a>(node_list_state: &ListState, nodes: &'a Nodes) -> (List<'a>, Table<'a>) {
+// pub fn render_nodes<'a>(node_list_state: &ListState, nodes: &'a Nodes) -> (List<'a>, Table<'a>) {
+pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep) -> (List<'a>, Table<'a>) {
     let nodes_block:Block = Block::default()
         .borders(Borders::ALL)
         .style(Style::default().fg(Color::White))
         .title("RG Explorer")
         .border_type(BorderType::Plain);
 
-    let items: Vec<_> = nodes
+    let items: Vec<_> = rip_grep.nodes
         .0.iter()
         .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
@@ -33,7 +34,10 @@ pub fn render_nodes<'a>(node_list_state: &ListState, nodes: &'a Nodes) -> (List<
             .add_modifier(Modifier::BOLD),
     );
 
-    let node_detail = nodes
+    // let node_detail = rip_grep.nodes_detail(node_list_state.selected().expect("there is always a selected node")
+    /*
+    let node_detail = rip_grep.nodes
+        // .0.get
         .0.get(
             node_list_state
                 .selected()
@@ -41,6 +45,8 @@ pub fn render_nodes<'a>(node_list_state: &ListState, nodes: &'a Nodes) -> (List<
         )
         .expect("exists")
         .detail()
+        */
+    let node_detail = rip_grep.node_detail(node_list_state.selected().expect("there is always a selected node"))
         .header(Row::new(vec![
             Cell::from(Span::styled(
                 "Lines",

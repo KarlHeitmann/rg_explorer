@@ -120,7 +120,7 @@ pub struct SubnodeContext {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Context {
     path: Path,
-    lines: Lines,
+    pub lines: Lines,
     line_number: usize,
     absolute_offset: usize,
     submatches: Vec<SubSubMatch>,

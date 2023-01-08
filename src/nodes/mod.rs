@@ -10,6 +10,7 @@ pub use node::{Node,Type};
 pub struct RgExplorer {
     nodes: Nodes,
 }
+use tui::widgets::Table;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
@@ -131,6 +132,13 @@ impl RipGrep {
         };
         if s == "" { return None; }
         Some(Self::strip_trailing_newline(s).to_string())
+    }
+
+    pub fn node_detail(&self, i: usize) -> Table {
+        match self.nodes.0.get(i) {
+            Some(n) => n.detail(self.before_context, self.after_context),
+            None => Table::new(vec![])
+        }
     }
 
     pub fn run(&mut self) {
