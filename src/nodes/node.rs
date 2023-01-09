@@ -15,22 +15,25 @@ pub mod r#type;
 pub use r#type::Type;
 
 pub mod data;
-pub use data::{Data, SubnodeBegin, SubnodeMatch, Begin, Match};
+pub use data::{Data, SubnodeBegin, SubnodeMatch, SubnodeContext, Begin, Match, Context};
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
     begin: Begin,
-    context: Option<Data>,
+    // context: Vec<Context>, // Option<Data>,
     r#match: Vec<Match>,
     end: Data,
 }
 
 impl Node {
+    pub fn file_name(&self) -> String {
+        self.begin.path.text.clone()
+    }
     pub fn new(data_raw: Vec<(&str, Type)>) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
         let mut r#match: Vec<Match> = vec![];
-        let mut context: Option<Data> = None;
+        // let mut context: Vec<Context> = vec![];
         let mut end: Option<Data> = None;
         for (d, t) in data_raw {
             match t {
@@ -39,11 +42,12 @@ impl Node {
                     begin = Some(sub_node_begin.data)
                 },
                 Type::r#match => {
-                    let subnode_begin = Self::parse_subnode_match(d).expect("begin expected");
+                    let subnode_begin = Self::parse_subnode_match(d).expect("match expected");
                     r#match.push(subnode_begin.data) // XXX This can blow up
                 },
                 Type::context => {
-                    context = Some(Self::parse_data(d).expect("context expected")); // XXX This can blow up
+                    let subnode_match = Self::parse_subnode_match(d).expect("context expected");
+                    r#match.push(subnode_match.data);
                 },
                 Type::end => {
                     end = Some(Self::parse_data(d).expect("end expected")); // XXX This can blow up
@@ -54,7 +58,6 @@ impl Node {
         Self {
             begin: begin.unwrap(),
             r#match,
-            context,
             end: end.unwrap(),
         }
     }
@@ -66,25 +69,32 @@ impl Node {
         let n: SubnodeMatch = serde_json::from_str(d)?;
         Ok(n)
     }
+    /*
+    fn parse_subnode_context(d: &str) -> Result<SubnodeContext> {
+        let n: SubnodeContext = serde_json::from_str(d)?;
+        Ok(n)
+    }
+    */
     fn parse_data(d: &str) -> Result<Data> {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
     }
-    pub fn detail(&self) -> Table {
-        /*
-        let spans = Spans::from(vec![
-            Span::styled("My", Style::default().fg(Color::Yellow)),
-            Span::raw(" text"),
-        ]);
-        Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])
-        */
+
+    pub fn len_matches_all(&self) -> usize {
+        self.r#match.len()
+    }
+
+    pub fn len_matches(&self, offset_detail: usize) -> usize {
+        self.r#match[offset_detail..].len()
+    }
+
+    pub fn detail(&self, offset_detail: usize) -> Table {
         Table::new(
-            self.r#match.iter().map(|m| {
+            self.r#match[offset_detail..].iter().map(|m| {
                 Row::new(vec![
                     Cell::from(m.pretty_line_match()),
-                    Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
+                    // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
                 ])
-                // ]).height(m.total_submatches().try_into().unwrap())
             })
         )
     }

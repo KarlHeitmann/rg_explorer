@@ -6,20 +6,19 @@ use std::io;
 use thiserror::Error;
 use tui::{
     backend::CrosstermBackend,
-    layout::{Alignment, Constraint, Direction, Layout, Rect},
-    style::{Color, Modifier, Style},
-    text::{Span, Spans},
-    widgets::{
-        Block, BorderType, Borders, Cell, List, ListItem, ListState, Paragraph, Row, Table, Tabs,
-    },
+    layout::{Constraint, Direction, Layout},
+    widgets::ListState,
     Terminal,
 };
 
 mod nodes;
-// mod io::run_command;
-mod io_rg;
-use crate::io_rg::RipGrep;
-use crate::nodes::Nodes;
+mod ui;
+
+// use crate::io_rg::RipGrep;
+use crate::ui::home::render_home;
+use crate::ui::edit::render_edit;
+use crate::ui::nodes::render_nodes;
+use crate::ui::NodeTabSelected;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -30,7 +29,7 @@ pub enum Error {
 }
 
 #[derive(Copy, Clone, Debug)]
-enum MenuItem {
+pub enum MenuItem {
     Home,
     Nodes,
     Edit,
@@ -46,81 +45,10 @@ impl From<MenuItem> for usize {
     }
 }
 
-fn run(results: Vec<&str>) -> Nodes {
-    Nodes::new(results)
-}
-/*
-fn run(results: Vec<&str>) {
-    let parsed_result = nodes::RgExplorer::new(results);
-    println!("{}", parsed_result);
-}
-*/
-
-fn get_layout_chunk(size: Rect) -> Vec<Rect> {
-    Layout::default()
-        .direction(Direction::Vertical)
-        .margin(2)
-        .constraints(
-            [
-                Constraint::Length(3),
-                Constraint::Min(2),
-                Constraint::Length(3),
-            ]
-            .as_ref(),
-        )
-        .split(size)
-}
-
-// fn draw_menu_tabs(menu_titles: &Vec<&str>, active_menu_item: MenuItem) -> Tabs {
-fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuItem) -> Tabs<'a> {
-    let menu = menu_titles
-        .iter()
-        .map(|t| {
-            let (first, rest) = t.split_at(1);
-            Spans::from(vec![
-                Span::styled(
-                    first,
-                    Style::default()
-                        .fg(Color::Yellow)
-                        .add_modifier(Modifier::UNDERLINED),
-                ),
-                Span::styled(rest, Style::default().fg(Color::White)),
-            ])
-        })
-        .collect();
-
-    Tabs::new(menu)
-        .select(active_menu_item.into())
-        .block(Block::default().title("Menu").borders(Borders::ALL))
-        .style(Style::default().fg(Color::White))
-        .highlight_style(Style::default().fg(Color::Yellow))
-        .divider(Span::raw("|"))
-}
-
-fn draw_copyright<'layout>() -> Paragraph<'layout> {
-    Paragraph::new("pet-CLI 2020 - all rights reserved")
-        .style(Style::default().fg(Color::LightCyan))
-        .alignment(Alignment::Center)
-        .block(
-            Block::default()
-                .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
-                .title("Copyright")
-                .border_type(BorderType::Plain),
-        )
-}
-
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    // let main_nodes = read_db().expect("can't fetch nodes for rg explorer");
     let search_term = "fn";
-    // let search_term = "a";
-    // let search_term = ";";
-    // let search_term = "an";
-    let rip_grep = RipGrep::new(search_term.to_string()); // TODO Create default
-    // let rip_grep = RipGrep { search_term: "fn" } ;
-    // let rip_grep = RipGrep { search_term: String::from("fn")} ;
-    let results = rip_grep.run_command();
-    let main_nodes = run(results.split("\n").collect::<Vec<&str>>());
+    let mut rip_grep = nodes::RipGrep::new(search_term.to_string()); // TODO Create default
+    let mut app = ui::App::default();
 
     enable_raw_mode().expect("can run in raw mode");
 
@@ -130,80 +58,168 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     terminal.clear()?;
 
     let mut active_menu_item = MenuItem::Home;
-    // let mut active_menu_item = MenuItem::Edit;
-    let mut pet_list_state = ListState::default();
-    pet_list_state.select(Some(0));
+    let mut node_list_state = ListState::default();
+    node_list_state.select(Some(0));
     let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
 
     loop {
         terminal.draw(|rect| {
-            let chunks = get_layout_chunk(rect.size());
+            let rip_grep = &mut rip_grep;
+            let chunks = ui::get_layout_chunks(rect.size());
 
-            let copyright = draw_copyright();
+            let status_bar = ui::draw_status_bar(app.get_input_mode());
 
-            let tabs = draw_menu_tabs(&menu_titles, active_menu_item);
+            let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item);
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
-                // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
-                    let pets_chunks = Layout::default()
-                        .direction(Direction::Horizontal)
-                        .constraints(
-                            [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
-                        )
-                        .split(chunks[1]);
-                    let (left, right) = render_pets(&pet_list_state, &main_nodes);
-                    rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
-                    rect.render_widget(right, pets_chunks[1]);
+                    rip_grep.run_wrapper();
+                    if rip_grep.nodes.len() == 0{
+                        // TODO: Put a message saying no results
+                    } else {
+                        let nodes_chunks = Layout::default()
+                            .direction(Direction::Horizontal)
+                            .constraints(
+                                [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
+                            )
+                            .split(chunks[1]);
+                        let (left, right) = render_nodes(&node_list_state, &rip_grep, &app);
+                        rect.render_stateful_widget(left, nodes_chunks[0], &mut node_list_state);
+                        rect.render_widget(right, nodes_chunks[1]);
+                    }
                 },
-                MenuItem::Edit => rect.render_widget(render_edit(rip_grep.to_string()), chunks[1]),
+                MenuItem::Edit => {
+                    let (first, second, edit_chunks) = render_edit(&rip_grep, chunks[1], app.get_input_mode());
+                    rect.render_widget(first, edit_chunks[0]);
+                    rect.render_widget(second, edit_chunks[1]);
+                    match app.get_input_mode() {
+                        ui::InputMode::Editing => { 
+                            rect.set_cursor(
+                                edit_chunks[0].x + rip_grep.search_term_buffer.len() as u16 + 1,
+                                edit_chunks[0].y + 1,
+                            )
+
+                        },
+                        _ => {},
+                    }
+                },
             }
-            rect.render_widget(copyright, chunks[2]);
+            rect.render_widget(status_bar, chunks[2]);
         })?;
 
         if let Event::Key(key) = event::read()? {
-            match active_menu_item {
-                MenuItem::Edit => { // TODO: THREAD is messing things up. Erase it. https://blog.logrocket.com/rust-and-tui-building-a-command-line-interface-in-rust/
-                    match key.code {
-                        _ => {
-                            disable_raw_mode()?;
-                            terminal.show_cursor()?;
-                            break;
-                        }
-                    }
-                },
-                _ => {
-                    match key.code {
-                        KeyCode::Char('h') => active_menu_item = MenuItem::Home,
-                        KeyCode::Char('n') => active_menu_item = MenuItem::Nodes,
-                        KeyCode::Char('e') => active_menu_item = MenuItem::Edit,
-                        KeyCode::Down => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
-                                if selected >= amount_pets - 1 {
-                                    pet_list_state.select(Some(0));
-                                } else {
-                                    pet_list_state.select(Some(selected + 1));
-                                }
-                            }
-                        }
-                        KeyCode::Up => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = main_nodes.len();
-                                if selected > 0 {
-                                    pet_list_state.select(Some(selected - 1));
-                                } else {
-                                    pet_list_state.select(Some(amount_pets - 1));
-                                }
-                            }
-                        }
+            match app.get_input_mode() {
+                ui::InputMode::Normal => {
+                    let menu_item: Option<MenuItem> = match key.code {
+                        KeyCode::Char('h') => Some(MenuItem::Home),
+                        KeyCode::Char('n') => Some(MenuItem::Nodes),
+                        KeyCode::Char('e') => Some(MenuItem::Edit),
                         KeyCode::Char('q') => {
                             disable_raw_mode()?;
                             terminal.show_cursor()?;
                             break;
                         }
+                        _ => None,
+                    };
+                    match menu_item {
+                        Some(menu_item) => {
+                            active_menu_item = menu_item;
+                            continue;
+                        },
+                        _ => {},
+                    }
+                },
+                ui::InputMode::Editing => {
+                    match key.code {
+                        KeyCode::Esc|KeyCode::F(2) => { app.set_input_mode(ui::InputMode::Normal); continue; } // Gets traped in vim
+                        _ => {}
+                    }
+                },
+            }
+            match active_menu_item {
+                MenuItem::Edit => {
+                    match app.get_input_mode() {
+                        ui::InputMode::Normal => {
+                            match key.code {
+                                KeyCode::Char('i') => { app.set_input_mode(ui::InputMode::Editing); },
+                                _ => {}
+                            }
+                        },
+                        ui::InputMode::Editing => {
+                            match key.code {
+                                KeyCode::Char(c) => { rip_grep.search_term_buffer.push(c); },
+                                KeyCode::Backspace => { rip_grep.search_term_buffer.pop(); }
+                                _ => {}
+                            }
+                        }
+                    }
+                },
+                MenuItem::Nodes => {
+                    match app.get_input_mode() {
+                        ui::InputMode::Normal => {
+                            match key.code {
+                                KeyCode::Char('i') => app.set_input_mode(ui::InputMode::Editing),
+                                _ => {}
+                            }
+                        }
+                        ui::InputMode::Editing => {
+                            match key.code {
+                                KeyCode::Char(c) => { app.folder_filter.push(c); },
+                                KeyCode::Backspace => { app.folder_filter.pop(); },
+                                _ => {}
+                            }
+                        }
+                    }
+                    match key.code {
+                        KeyCode::Left => { rip_grep.decrease_context(); },
+                        KeyCode::Right => { rip_grep.increase_context(); },
+                        KeyCode::Down => {
+                            match app.selected_node_tab {
+                                NodeTabSelected::FileList => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
+                                        if selected >= amount_nodes - 1 {
+                                            node_list_state.select(Some(0));
+                                        } else {
+                                            node_list_state.select(Some(selected + 1));
+                                        }
+                                    }
+                                }
+                                NodeTabSelected::Detail => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        if app.offset_detail < rip_grep.nodes.node_matches_count(selected) { app.offset_detail += 1; }
+                                    }
+                                }
+                            }
+                        }
+                        KeyCode::Up => {
+                            match app.selected_node_tab {
+                                NodeTabSelected::FileList => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
+                                        if selected > 0 {
+                                            node_list_state.select(Some(selected - 1));
+                                        } else {
+                                            node_list_state.select(Some(amount_nodes - 1));
+                                        }
+                                    }
+                                }
+                                NodeTabSelected::Detail => {
+                                    if app.offset_detail > 0 { app.offset_detail -= 1; }
+                                }
+                            }
+                        }
+                        KeyCode::Tab => {app.selected_node_tab = if app.selected_node_tab == NodeTabSelected::FileList { NodeTabSelected::Detail } else { NodeTabSelected::FileList} }
+                        KeyCode::Enter => {}
+                        KeyCode::Backspace => {
+                        }
+                        _ => {}
+                    }
+                },
+                _ => {
+                    match key.code {
                         _ => {}
                     }
                 }
@@ -212,114 +228,5 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     Ok(())
-}
-
-fn render_home<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    let home = Paragraph::new(vec![
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw(rip_grep_command)]),
-        Spans::from(vec![Span::raw("")]),
-    ])
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Home")
-            .border_type(BorderType::Plain),
-    );
-    home
-}
-
-fn render_edit<'a>(rip_grep_command: String) -> Paragraph<'a> {
-    /*
-    let input = Paragraph::new(app.input.as_ref()) // app.input is a String
-        .style(match app.input_mode {
-            InputMode::Normal => Style::default(),
-            InputMode::Editing => Style::default().fg(Color::Yellow),
-        })
-        .block(Block::default().borders(Borders::ALL).title("Input"));
-    */
-    let input = Paragraph::new(vec![
-            Spans::from(vec![Span::raw(rip_grep_command)]),
-            Spans::from(vec![Span::raw("INPUT this should be mutable")]),
-        ]) // app.input is a String
-        .style(Style::default().fg(Color::Yellow))
-        .block(Block::default().borders(Borders::ALL).title("Input"));
-
-    let _home = Paragraph::new(vec![
-        Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw("Edit")]),
-        Spans::from(vec![Span::raw("")]),
-    ])
-    .alignment(Alignment::Center)
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Home")
-            .border_type(BorderType::Plain),
-    );
-    input
-}
-
-fn render_pets<'a>(pet_list_state: &ListState, all_pets: &'a Nodes) -> (List<'a>, Table<'a>) {
-    let pets = Block::default()
-        .borders(Borders::ALL)
-        .style(Style::default().fg(Color::White))
-        .title("RG Explorer")
-        .border_type(BorderType::Plain);
-
-    let pet_list = all_pets;
-    let items: Vec<_> = pet_list
-        .0.iter()
-        .map(|node| {
-            ListItem::new(Spans::from(vec![Span::styled(
-                node.summary(), // TODO: replace by something like "pet," or pet.name.clone(), memorare: pet.name was a String!!!
-                Style::default(),
-            )]))
-        })
-        .collect();
-
-    let selected_pet = pet_list
-        .0.get(
-            pet_list_state
-                .selected()
-                .expect("there is always a selected pet"),
-        )
-        .expect("exists")
-        .clone();
-
-    let list = List::new(items).block(pets).highlight_style(
-        Style::default()
-            .bg(Color::Yellow)
-            .fg(Color::Black)
-            .add_modifier(Modifier::BOLD),
-    );
-
-    let pet_detail = selected_pet.detail()
-    .header(Row::new(vec![
-        Cell::from(Span::styled(
-            "Lines",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-        Cell::from(Span::styled(
-            "Category",
-            Style::default().add_modifier(Modifier::BOLD),
-        )),
-    ]))
-    .block(
-        Block::default()
-            .borders(Borders::ALL)
-            .style(Style::default().fg(Color::White))
-            .title("Detail")
-            .border_type(BorderType::Plain),
-    )
-    .widths(&[
-        Constraint::Percentage(80),
-        Constraint::Percentage(20),
-    ]);
-
-    (list, pet_detail)
 }
 
