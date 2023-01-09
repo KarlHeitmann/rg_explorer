@@ -10,6 +10,7 @@ use tui::{
 pub mod home;
 pub mod edit;
 pub mod nodes;
+pub mod sub_search;
 
 use crate::MenuItem;
 

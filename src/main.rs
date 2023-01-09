@@ -15,6 +15,7 @@ mod nodes;
 mod ui;
 
 // use crate::io_rg::RipGrep;
+use crate::ui::sub_search::render_sub_search;
 use crate::ui::home::render_home;
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
@@ -33,6 +34,7 @@ pub enum MenuItem {
     Home,
     Nodes,
     Edit,
+    SubSearch
 }
 
 impl From<MenuItem> for usize {
@@ -41,6 +43,7 @@ impl From<MenuItem> for usize {
             MenuItem::Home => 0,
             MenuItem::Nodes => 1,
             MenuItem::Edit => 2,
+            MenuItem::SubSearch => 3,
         }
     }
 }
@@ -60,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut active_menu_item = MenuItem::Home;
     let mut node_list_state = ListState::default();
     node_list_state.select(Some(0));
-    let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
+    let menu_titles = vec!["Home", "Nodes", "Edit", "SubSearch", "Delete", "Quit"];
 
     loop {
         terminal.draw(|rect| {
@@ -105,6 +108,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         _ => {},
                     }
                 },
+                MenuItem::SubSearch => rect.render_widget(render_sub_search(rip_grep.to_string()), chunks[1]),
             }
             rect.render_widget(status_bar, chunks[2]);
         })?;
@@ -116,6 +120,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         KeyCode::Char('h') => Some(MenuItem::Home),
                         KeyCode::Char('n') => Some(MenuItem::Nodes),
                         KeyCode::Char('e') => Some(MenuItem::Edit),
+                        KeyCode::Char('s') => Some(MenuItem::SubSearch),
                         KeyCode::Char('q') => {
                             disable_raw_mode()?;
                             terminal.show_cursor()?;
