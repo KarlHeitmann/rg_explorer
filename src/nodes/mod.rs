@@ -50,10 +50,13 @@ impl Nodes {
                 }
             }
         }
-        // v.0.sort();
-        // v.0.sor
         v.0.sort_by(|a, b| a.file_name().cmp(&b.file_name()));
         v
+    }
+
+    pub fn filtered_nodes(&self, folder_filter: String) -> Vec<&Node> {
+        let items = &self.0;
+        items.into_iter().filter(|node| node.file_name().contains(&folder_filter)).collect()
     }
 
     pub fn len(&self) -> usize {
@@ -87,14 +90,16 @@ pub struct RipGrep {
     pub nodes: Nodes,
     after_context: usize,
     before_context: usize,
+    folder: String,
 }
 
 impl RipGrep {
     pub fn new(search_term: String) -> Self {
         let after_context = 1;
         let before_context = 1;
+        let folder = String::from(".");
         // let args = format!("{} --json", search_term);
-        let args = format!("{search_term} --json -A {after_context} -B {before_context}");
+        let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
         let data_raw = Self::launch_rg(args);
         // let data_raw = Self::launch_rg(format!("{} --json -A {} -B {}", &search_term, after_context, before_context));
         match data_raw {
@@ -102,13 +107,13 @@ impl RipGrep {
                 nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>()),
                 search_term_buffer: search_term.clone(),
                 search_term,
-                after_context, before_context,
+                after_context, before_context, folder,
             },
             None => Self {
                 nodes: Nodes::new(vec![]),
                 search_term_buffer: search_term.clone(),
                 search_term,
-                after_context, before_context,
+                after_context, before_context, folder,
             }
         }
     }
@@ -163,9 +168,9 @@ impl RipGrep {
         self.search_term = self.search_term_buffer.clone();
         // let args = format!("{} --json", self.search_term);
         // let search_term = &self.search_term;
-        let (search_term, after_context, before_context) = (&self.search_term, &self.after_context, &self.before_context);
+        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
         // let args = format!("{search_term} --json");
-        let args = format!("{search_term} --json -A {after_context} -B {before_context}");
+        let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
         let res = Self::launch_rg(args);
         match res {
             Some(res) => {

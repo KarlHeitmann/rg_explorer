@@ -20,12 +20,14 @@ pub enum InputMode {
 }
 
 pub struct App {
+    pub folder_filter: String,
     input_mode: InputMode,
 }
 
 impl Default for App {
     fn default() -> App {
         App {
+            folder_filter: String::from(""),
             input_mode: InputMode::Normal,
         }
     }

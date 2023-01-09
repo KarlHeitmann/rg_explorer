@@ -57,8 +57,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     terminal.clear()?;
 
     let mut active_menu_item = MenuItem::Home;
-    let mut pet_list_state = ListState::default();
-    pet_list_state.select(Some(0));
+    let mut node_list_state = ListState::default();
+    node_list_state.select(Some(0));
     let menu_titles = vec!["Home", "Nodes", "Edit", "Add", "Delete", "Quit"];
 
     loop {
@@ -81,15 +81,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     if rip_grep.nodes.len() == 0{
                         // TODO: Put a message saying no results
                     } else {
-                        let pets_chunks = Layout::default()
+                        let nodes_chunks = Layout::default()
                             .direction(Direction::Horizontal)
                             .constraints(
                                 [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
                             )
                             .split(chunks[1]);
-                        let (left, right) = render_nodes(&pet_list_state, &rip_grep);
-                        rect.render_stateful_widget(left, pets_chunks[0], &mut pet_list_state);
-                        rect.render_widget(right, pets_chunks[1]);
+                        let (left, right) = render_nodes(&node_list_state, &rip_grep, app.folder_filter.clone());
+                        rect.render_stateful_widget(left, nodes_chunks[0], &mut node_list_state);
+                        rect.render_widget(right, nodes_chunks[1]);
                     }
                 },
                 MenuItem::Edit => {
@@ -165,6 +165,21 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     }
                 },
                 MenuItem::Nodes => {
+                    match app.get_input_mode() {
+                        ui::InputMode::Normal => {
+                            match key.code {
+                                KeyCode::Char('i') => app.set_input_mode(ui::InputMode::Editing),
+                                _ => {}
+                            }
+                        }
+                        ui::InputMode::Editing => {
+                            match key.code {
+                                KeyCode::Char(c) => { app.folder_filter.push(c); },
+                                KeyCode::Backspace => { app.folder_filter.pop(); },
+                                _ => {}
+                            }
+                        }
+                    }
                     match key.code {
                         KeyCode::Left => {
                             rip_grep.decrease_context();
@@ -173,24 +188,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             rip_grep.increase_context();
                         },
                         KeyCode::Down => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = rip_grep.nodes.len();
-                                if selected >= amount_pets - 1 {
-                                    pet_list_state.select(Some(0));
+                            if let Some(selected) = node_list_state.selected() {
+                                let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
+                                if selected >= amount_nodes - 1 {
+                                    node_list_state.select(Some(0));
                                 } else {
-                                    pet_list_state.select(Some(selected + 1));
+                                    node_list_state.select(Some(selected + 1));
                                 }
                             }
                         }
                         KeyCode::Up => {
-                            if let Some(selected) = pet_list_state.selected() {
-                                let amount_pets = rip_grep.nodes.len();
+                            if let Some(selected) = node_list_state.selected() {
+                                let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
                                 if selected > 0 {
-                                    pet_list_state.select(Some(selected - 1));
+                                    node_list_state.select(Some(selected - 1));
                                 } else {
-                                    pet_list_state.select(Some(amount_pets - 1));
+                                    node_list_state.select(Some(amount_nodes - 1));
                                 }
                             }
+                        }
+                        KeyCode::Enter => {}
+                        KeyCode::Tab => {}
+                        KeyCode::Backspace => {
                         }
                         _ => {}
                     }
