@@ -19,7 +19,6 @@ use crate::ui::sub_search::render_sub_search;
 use crate::ui::home::render_home;
 use crate::ui::edit::{render_edit, action_edit};
 use crate::ui::nodes::{render_nodes, action_nodes};
-use crate::ui::NodeTabSelected;
 
 #[derive(Error, Debug)]
 pub enum Error {
