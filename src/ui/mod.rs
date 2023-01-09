@@ -19,8 +19,16 @@ pub enum InputMode {
     Editing,
 }
 
+#[derive(PartialEq)]
+pub enum NodeTabSelected {
+    FileList,
+    Detail,
+}
+
 pub struct App {
     pub folder_filter: String,
+    pub selected_node_tab: NodeTabSelected,
+    pub offset_detail: usize,
     input_mode: InputMode,
 }
 
@@ -28,6 +36,9 @@ impl Default for App {
     fn default() -> App {
         App {
             folder_filter: String::from(""),
+            offset_detail: 0,
+            // selected_node_tab: String::from(""),
+            selected_node_tab: NodeTabSelected::FileList,
             input_mode: InputMode::Normal,
         }
     }

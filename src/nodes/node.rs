@@ -79,35 +79,22 @@ impl Node {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
     }
-    pub fn detail(&self) -> Table {
-        /*
-        let spans = Spans::from(vec![
-            Span::styled("My", Style::default().fg(Color::Yellow)),
-            Span::raw(" text"),
-        ]);
-        Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])
-        */
-        /*
-        let mut data: Vec<String> = vec![];
-        // self.context.iter().map().col
-        // let aux_context = self.context.iter().map(|c| {c.lines.text}).collect();
-        // let aux_context: &mut Vec<String> = self.context.iter()
-        let mut aux_context: Vec<String> = self.context.iter()
-            .map(|c| {c.lines.text})
-            .collect();
-        data.append(&mut aux_context);
-        */
-        // vec.push(self.r)
-        Table::new(
-        // let data = vec![];
 
-        // Table::new(
-            self.r#match.iter().map(|m| {
+    pub fn len_matches_all(&self) -> usize {
+        self.r#match.len()
+    }
+
+    pub fn len_matches(&self, offset_detail: usize) -> usize {
+        self.r#match[offset_detail..].len()
+    }
+
+    pub fn detail(&self, offset_detail: usize) -> Table {
+        Table::new(
+            self.r#match[offset_detail..].iter().map(|m| {
                 Row::new(vec![
                     Cell::from(m.pretty_line_match()),
-                    Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
+                    // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
                 ])
-                // ]).height(m.total_submatches().try_into().unwrap())
             })
         )
     }

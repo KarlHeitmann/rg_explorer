@@ -7,17 +7,25 @@ use tui::{
     },
 };
 
-use crate::nodes::Node;
+use crate::ui::NodeTabSelected;
 use crate::nodes::RipGrep;
+use crate::ui::App;
 
-pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep, folder_filter: String) -> (List<'a>, Table<'a>) {
+pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep, app: &App) -> (List<'a>, Table<'a>) {
+    let folder_filter = app.folder_filter.clone();
+    let selected_node_tab = &app.selected_node_tab;
+    let (style_list, style_detail) = match selected_node_tab {
+        NodeTabSelected::Detail  => { (Style::default().fg(Color::White), Style::default().fg(Color::Green)) },
+        NodeTabSelected::FileList => { (Style::default().fg(Color::Green), Style::default().fg(Color::White)) },
+    };
     let nodes_block:Block = Block::default()
         .borders(Borders::ALL)
-        .style(Style::default().fg(Color::White))
+        .style(style_list)
         .title(format!("Filter: '{folder_filter}'"))
         .border_type(BorderType::Plain);
 
-    let items: Vec<_> = rip_grep.nodes.filtered_nodes(folder_filter)
+    // let items: Vec<ListItem> = rip_grep.nodes.filtered_nodes(folder_filter)
+    let items: Vec<ListItem> = rip_grep.nodes.filtered_nodes(folder_filter)
         .into_iter()
         .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
@@ -34,27 +42,22 @@ pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep, fold
             .add_modifier(Modifier::BOLD),
     );
 
-    let node_detail = rip_grep.node_detail(node_list_state.selected().expect("there is always a selected node"))
+    let node_detail = rip_grep.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail)
         .header(Row::new(vec![
             Cell::from(Span::styled(
                 "Lines",
-                Style::default().add_modifier(Modifier::BOLD),
-            )),
-            Cell::from(Span::styled(
-                "Category",
                 Style::default().add_modifier(Modifier::BOLD),
             )),
         ]))
         .block(
             Block::default()
                 .borders(Borders::ALL)
-                .style(Style::default().fg(Color::White))
+                .style(style_detail)
                 .title("Detail")
                 .border_type(BorderType::Plain),
         )
         .widths(&[
-            Constraint::Percentage(80),
-            Constraint::Percentage(20),
+            Constraint::Percentage(100),
         ]);
 
     (list, node_detail)

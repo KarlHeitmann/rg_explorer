@@ -59,6 +59,10 @@ impl Nodes {
         items.into_iter().filter(|node| node.file_name().contains(&folder_filter)).collect()
     }
 
+    pub fn node_matches_count(&self, i: usize) -> usize {
+        self.0.get(i).expect("Node must exists").len_matches_all()
+    }
+
     pub fn len(&self) -> usize {
         let Nodes(foo) = self;
         foo.len()
@@ -151,9 +155,9 @@ impl RipGrep {
         Some(Self::strip_trailing_newline(s).to_string())
     }
 
-    pub fn node_detail(&self, i: usize) -> Table {
+    pub fn node_detail(&self, i: usize, offset_detail: usize) -> Table {
         match self.nodes.0.get(i) {
-            Some(n) => n.detail(),
+            Some(n) => n.detail(offset_detail),
             None => Table::new(vec![])
         }
     }

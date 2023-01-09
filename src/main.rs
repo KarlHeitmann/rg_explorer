@@ -18,6 +18,7 @@ mod ui;
 use crate::ui::home::render_home;
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
+use crate::ui::NodeTabSelected;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -73,11 +74,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
-                // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
                     rip_grep.run_wrapper();
-                    // let main_nodes = &mut rip_grep.nodes;
-                    // if main_nodes.len() == 0{
                     if rip_grep.nodes.len() == 0{
                         // TODO: Put a message saying no results
                     } else {
@@ -87,7 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
                             )
                             .split(chunks[1]);
-                        let (left, right) = render_nodes(&node_list_state, &rip_grep, app.folder_filter.clone());
+                        let (left, right) = render_nodes(&node_list_state, &rip_grep, &app);
                         rect.render_stateful_widget(left, nodes_chunks[0], &mut node_list_state);
                         rect.render_widget(right, nodes_chunks[1]);
                     }
@@ -145,20 +143,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     match app.get_input_mode() {
                         ui::InputMode::Normal => {
                             match key.code {
-                                KeyCode::Char('i') => {
-                                    app.set_input_mode(ui::InputMode::Editing);
-                                },
+                                KeyCode::Char('i') => { app.set_input_mode(ui::InputMode::Editing); },
                                 _ => {}
                             }
                         },
                         ui::InputMode::Editing => {
                             match key.code {
-                                KeyCode::Char(c) => {
-                                    rip_grep.search_term_buffer.push(c)
-                                },
-                                KeyCode::Backspace => {
-                                    rip_grep.search_term_buffer.pop();
-                                }
+                                KeyCode::Char(c) => { rip_grep.search_term_buffer.push(c); },
+                                KeyCode::Backspace => { rip_grep.search_term_buffer.pop(); }
                                 _ => {}
                             }
                         }
@@ -181,34 +173,46 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     }
                     match key.code {
-                        KeyCode::Left => {
-                            rip_grep.decrease_context();
-                        },
-                        KeyCode::Right => {
-                            rip_grep.increase_context();
-                        },
+                        KeyCode::Left => { rip_grep.decrease_context(); },
+                        KeyCode::Right => { rip_grep.increase_context(); },
                         KeyCode::Down => {
-                            if let Some(selected) = node_list_state.selected() {
-                                let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
-                                if selected >= amount_nodes - 1 {
-                                    node_list_state.select(Some(0));
-                                } else {
-                                    node_list_state.select(Some(selected + 1));
+                            match app.selected_node_tab {
+                                NodeTabSelected::FileList => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
+                                        if selected >= amount_nodes - 1 {
+                                            node_list_state.select(Some(0));
+                                        } else {
+                                            node_list_state.select(Some(selected + 1));
+                                        }
+                                    }
+                                }
+                                NodeTabSelected::Detail => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        if app.offset_detail < rip_grep.nodes.node_matches_count(selected) { app.offset_detail += 1; }
+                                    }
                                 }
                             }
                         }
                         KeyCode::Up => {
-                            if let Some(selected) = node_list_state.selected() {
-                                let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
-                                if selected > 0 {
-                                    node_list_state.select(Some(selected - 1));
-                                } else {
-                                    node_list_state.select(Some(amount_nodes - 1));
+                            match app.selected_node_tab {
+                                NodeTabSelected::FileList => {
+                                    if let Some(selected) = node_list_state.selected() {
+                                        let amount_nodes = rip_grep.nodes.filtered_nodes(app.folder_filter.clone()).len();
+                                        if selected > 0 {
+                                            node_list_state.select(Some(selected - 1));
+                                        } else {
+                                            node_list_state.select(Some(amount_nodes - 1));
+                                        }
+                                    }
+                                }
+                                NodeTabSelected::Detail => {
+                                    if app.offset_detail > 0 { app.offset_detail -= 1; }
                                 }
                             }
                         }
+                        KeyCode::Tab => {app.selected_node_tab = if app.selected_node_tab == NodeTabSelected::FileList { NodeTabSelected::Detail } else { NodeTabSelected::FileList} }
                         KeyCode::Enter => {}
-                        KeyCode::Tab => {}
                         KeyCode::Backspace => {
                         }
                         _ => {}
