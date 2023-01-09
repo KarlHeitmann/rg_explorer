@@ -20,7 +20,7 @@ pub use data::{Data, SubnodeBegin, SubnodeMatch, SubnodeContext, Begin, Match, C
 #[derive(Serialize, Deserialize, Debug)]
 pub struct Node {
     begin: Begin,
-    context: Vec<Context>, // Option<Data>,
+    // context: Vec<Context>, // Option<Data>,
     r#match: Vec<Match>,
     end: Data,
 }
@@ -30,7 +30,7 @@ impl Node {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
         let mut r#match: Vec<Match> = vec![];
-        let mut context: Vec<Context> = vec![];
+        // let mut context: Vec<Context> = vec![];
         let mut end: Option<Data> = None;
         for (d, t) in data_raw {
             match t {
@@ -43,9 +43,8 @@ impl Node {
                     r#match.push(subnode_begin.data) // XXX This can blow up
                 },
                 Type::context => {
-                    // context = Some(Self::parse_data(d).expect("context expected")); // XXX This can blow up
-                    let subnode_context = Self::parse_subnode_context(d).expect("context expected");
-                    context.push(subnode_context.data);
+                    let subnode_match = Self::parse_subnode_match(d).expect("context expected");
+                    r#match.push(subnode_match.data);
                 },
                 Type::end => {
                     end = Some(Self::parse_data(d).expect("end expected")); // XXX This can blow up
@@ -56,7 +55,6 @@ impl Node {
         Self {
             begin: begin.unwrap(),
             r#match,
-            context,
             end: end.unwrap(),
         }
     }
@@ -68,15 +66,17 @@ impl Node {
         let n: SubnodeMatch = serde_json::from_str(d)?;
         Ok(n)
     }
+    /*
     fn parse_subnode_context(d: &str) -> Result<SubnodeContext> {
         let n: SubnodeContext = serde_json::from_str(d)?;
         Ok(n)
     }
+    */
     fn parse_data(d: &str) -> Result<Data> {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
     }
-    pub fn detail(&self, before_context: usize, after_context: usize) -> Table {
+    pub fn detail(&self) -> Table {
         /*
         let spans = Spans::from(vec![
             Span::styled("My", Style::default().fg(Color::Yellow)),
@@ -84,6 +84,7 @@ impl Node {
         ]);
         Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])
         */
+        /*
         let mut data: Vec<String> = vec![];
         // self.context.iter().map().col
         // let aux_context = self.context.iter().map(|c| {c.lines.text}).collect();
@@ -92,6 +93,7 @@ impl Node {
             .map(|c| {c.lines.text})
             .collect();
         data.append(&mut aux_context);
+        */
         // vec.push(self.r)
         Table::new(
         // let data = vec![];

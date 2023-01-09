@@ -39,7 +39,7 @@ impl Nodes {
         for d in data_raw {
             let t = Self::parse_type(d).expect("Error parsing type at first level. Expected begin, match, end, context or summary");
             match t.r#type {
-                Type::begin | Type::r#match | Type::summary => {
+                Type::begin | Type::r#match | Type::summary | Type::context => {
                     aux_vecs.push((d, t.r#type))
                 },
                 Type::end => {
@@ -48,7 +48,6 @@ impl Nodes {
                     v.0.push(n);
                     aux_vecs = vec![];
                 }
-                _ => {}
             }
         }
         v
@@ -110,9 +109,6 @@ impl RipGrep {
             }
         }
     }
-    pub fn set_context(&mut self) {
-        
-    }
     // fn launch_rg(arguments: &String) -> Option<String> {
     fn launch_rg(arguments: String) -> Option<String> {
         // let command = format!("{} --json -A {} -B {}", arguments, );
@@ -136,7 +132,7 @@ impl RipGrep {
 
     pub fn node_detail(&self, i: usize) -> Table {
         match self.nodes.0.get(i) {
-            Some(n) => n.detail(self.before_context, self.after_context),
+            Some(n) => n.detail(),
             None => Table::new(vec![])
         }
     }

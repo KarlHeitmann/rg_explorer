@@ -15,7 +15,6 @@ mod nodes;
 mod ui;
 
 // use crate::io_rg::RipGrep;
-use crate::nodes::Nodes;
 use crate::ui::home::render_home;
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
@@ -171,11 +170,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                         },
                         KeyCode::Right => {
                         },
-                        _ => {}
-                    }
-                },
-                _ => {
-                    match key.code {
                         KeyCode::Down => {
                             if let Some(selected) = pet_list_state.selected() {
                                 let amount_pets = rip_grep.nodes.len();
@@ -196,6 +190,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }
                             }
                         }
+                        _ => {}
+                    }
+                },
+                _ => {
+                    match key.code {
                         _ => {}
                     }
                 }
