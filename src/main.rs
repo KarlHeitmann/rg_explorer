@@ -48,6 +48,16 @@ impl From<MenuItem> for usize {
     }
 }
 
+fn selection_menu_handler(key_code: KeyCode) -> Option <MenuItem> {
+    match key_code {
+        KeyCode::Char('h') => Some(MenuItem::Home),
+        KeyCode::Char('n') => Some(MenuItem::Nodes),
+        KeyCode::Char('e') => Some(MenuItem::Edit),
+        KeyCode::Char('s') => Some(MenuItem::SubSearch),
+        _ => None,
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let search_term = "fn";
     let mut rip_grep = nodes::RipGrep::new(search_term.to_string()); // TODO Create default
@@ -116,18 +126,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Event::Key(key) = event::read()? {
             match app.get_input_mode() {
                 ui::InputMode::Normal => {
-                    let menu_item: Option<MenuItem> = match key.code {
-                        KeyCode::Char('h') => Some(MenuItem::Home),
-                        KeyCode::Char('n') => Some(MenuItem::Nodes),
-                        KeyCode::Char('e') => Some(MenuItem::Edit),
-                        KeyCode::Char('s') => Some(MenuItem::SubSearch),
-                        KeyCode::Char('q') => {
-                            disable_raw_mode()?;
-                            terminal.show_cursor()?;
-                            break;
-                        }
-                        _ => None,
-                    };
+                    if key.code == KeyCode::Char('q') {
+                        disable_raw_mode()?;
+                        terminal.show_cursor()?;
+                        break;
+                    }
+                    let menu_item = selection_menu_handler(key.code);
                     match menu_item {
                         Some(menu_item) => {
                             active_menu_item = menu_item;
@@ -191,6 +195,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             node_list_state.select(Some(selected + 1));
                                         }
                                     }
+                                    app.offset_detail = 0;
                                 }
                                 NodeTabSelected::Detail => {
                                     if let Some(selected) = node_list_state.selected() {
@@ -210,6 +215,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             node_list_state.select(Some(amount_nodes - 1));
                                         }
                                     }
+                                    app.offset_detail = 0;
                                 }
                                 NodeTabSelected::Detail => {
                                     if app.offset_detail > 0 { app.offset_detail -= 1; }
