@@ -1,3 +1,7 @@
+use crossterm::{
+    event::{KeyCode, KeyEvent},
+};
+
 use tui::{
     layout::Alignment,
     style::{Color, Style},
@@ -8,7 +12,7 @@ use tui::{
     },
 };
 
-use crate::ui::InputMode;
+use crate::ui::{App, InputMode};
 use crate::nodes::RipGrep;
 
 pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
@@ -46,6 +50,24 @@ pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: I
             .border_type(BorderType::Plain),
     );
     (input, home, edit_chunks)
+}
+
+pub fn action_edit(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
+    match app.get_input_mode() {
+        InputMode::Normal => {
+            match key.code {
+                KeyCode::Char('i') => { app.set_input_mode(InputMode::Editing); },
+                _ => {}
+            }
+        },
+        InputMode::Editing => {
+            match key.code {
+                KeyCode::Char(c) => { rip_grep.search_term_buffer.push(c); },
+                KeyCode::Backspace => { rip_grep.search_term_buffer.pop(); }
+                _ => {}
+            }
+        }
+    }
 }
 
 
