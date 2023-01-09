@@ -75,7 +75,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
                 // MenuItem::Home => rect.render_widget(render_home(rip_grep), chunks[1]),
                 MenuItem::Nodes => {
-                    rip_grep.run();
+                    rip_grep.run_wrapper();
                     // let main_nodes = &mut rip_grep.nodes;
                     // if main_nodes.len() == 0{
                     if rip_grep.nodes.len() == 0{
@@ -167,8 +167,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 MenuItem::Nodes => {
                     match key.code {
                         KeyCode::Left => {
+                            rip_grep.decrease_context();
                         },
                         KeyCode::Right => {
+                            rip_grep.increase_context();
                         },
                         KeyCode::Down => {
                             if let Some(selected) = pet_list_state.selected() {

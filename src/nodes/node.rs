@@ -26,6 +26,9 @@ pub struct Node {
 }
 
 impl Node {
+    pub fn file_name(&self) -> String {
+        self.begin.path.text.clone()
+    }
     pub fn new(data_raw: Vec<(&str, Type)>) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
