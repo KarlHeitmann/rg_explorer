@@ -3,13 +3,7 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
-use tui::{
-    text::{Span, Spans},
-    style::{Color, Style},
-    widgets::{
-        Cell, Row, Table,
-    },
-};
+use tui::widgets::{ Cell, Row, Table, };
 
 pub mod r#type;
 pub use r#type::Type;
@@ -84,10 +78,6 @@ impl Node {
         self.r#match.len()
     }
 
-    pub fn len_matches(&self, offset_detail: usize) -> usize {
-        self.r#match[offset_detail..].len()
-    }
-
     pub fn detail(&self, offset_detail: usize) -> Table {
         Table::new(
             self.r#match[offset_detail..].iter().map(|m| {
@@ -99,7 +89,7 @@ impl Node {
         )
     }
     pub fn summary(&self) -> String {
-        self.begin.path.text.to_string()
+        format!(" { }", self.begin.path.text.to_string())
     }
 }
 

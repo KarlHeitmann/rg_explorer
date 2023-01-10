@@ -21,16 +21,6 @@ struct AuxType {
 #[derive(Debug)]
 pub struct Nodes(pub Vec<Node>);
 
-/*
- * ESTRATEGIA:
- * Tomar data_raw
- * iterarlo
- * Identificar el tipo de data_raw node: begin, match, context, end, summary
- * Si es begin, match, context, agregarlo a un un vec auxiliar
- * Si es end, cerrar el arreglo y construir el Node con ese vector auxiliar de strings. Vaciar el
- *   vec auxiliar
- * Si summary, crear el nodo final y terminar. Agregar los nodos a node
- */
 impl Nodes {
     pub fn new(data_raw: Vec<&str>) -> Self {
         let mut v: Nodes = Nodes { 0: vec![]};
@@ -98,10 +88,13 @@ pub struct RipGrep {
 }
 
 impl RipGrep {
-    pub fn new(search_term: String) -> Self {
+    pub fn get_file_name_matches(&self) -> String{
+        self.nodes.0.iter().fold("".to_string(), |res, n| res + " " + &n.file_name()).trim().to_string()
+    }
+    pub fn new(search_term: String, folder: String) -> Self {
         let after_context = 1;
         let before_context = 1;
-        let folder = String::from(".");
+        // let folder = String::from(".");
         // let args = format!("{} --json", search_term);
         let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
         let data_raw = Self::launch_rg(args);
@@ -137,8 +130,9 @@ impl RipGrep {
     // fn launch_rg(arguments: &String) -> Option<String> {
     fn launch_rg(arguments: String) -> Option<String> {
         // let command = format!("{} --json -A {} -B {}", arguments, );
+        let arguments = arguments.split(' ');
         let child = Command::new("rg")
-            .args(arguments.split(' '))
+            .args(arguments)
             .stdout(Stdio::piped())
             .spawn()
             .expect("failed to execute child");
@@ -160,6 +154,10 @@ impl RipGrep {
             Some(n) => n.detail(offset_detail),
             None => Table::new(vec![])
         }
+    }
+
+    pub fn get_node(&self, i: usize) -> &Node {
+        self.nodes.0.get(i).expect("Must have a node")
     }
 
     pub fn run_wrapper(&mut self) {
@@ -208,7 +206,8 @@ impl RipGrep {
 
 impl Display for RipGrep {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "rg {} --json", self.search_term_buffer)
+        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
+        write!(f, "rg {search_term} --json -A {after_context} -B {before_context} {folder}")
     }
 }
 
