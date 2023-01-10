@@ -156,6 +156,10 @@ impl RipGrep {
         }
     }
 
+    pub fn get_node(&self, i: usize) -> &Node {
+        self.nodes.0.get(i).expect("Must have a node")
+    }
+
     pub fn run_wrapper(&mut self) {
         if self.search_term != self.search_term_buffer {
             self.run();

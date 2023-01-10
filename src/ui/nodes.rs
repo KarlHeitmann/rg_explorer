@@ -44,10 +44,12 @@ pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep, app:
             .add_modifier(Modifier::BOLD),
     );
 
+    let detail_title = rip_grep.get_node(node_list_state.selected().expect("there is always a selected node"));
+
     let node_detail = rip_grep.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail)
         .header(Row::new(vec![
             Cell::from(Span::styled(
-                "Lines",
+                format!(" {}", detail_title.file_name()),
                 Style::default().add_modifier(Modifier::BOLD),
             )),
         ]))

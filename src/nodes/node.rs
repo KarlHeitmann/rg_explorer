@@ -89,7 +89,7 @@ impl Node {
         )
     }
     pub fn summary(&self) -> String {
-        self.begin.path.text.to_string()
+        format!(" { }", self.begin.path.text.to_string())
     }
 }
 
