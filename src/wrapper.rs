@@ -16,7 +16,6 @@ use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
 use crate::ui::home::render_home;
 use crate::nodes::RipGrep;
-use crossterm::terminal::disable_raw_mode;
 
 // use crate::ui::sub_search::action_nodes;
 
@@ -111,7 +110,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                         _ => {},
                     }
                 },
-                MenuItem::SubSearch => rect.render_widget(render_sub_search(rip_grep.to_string()), chunks[1]),
+                MenuItem::SubSearch => rect.render_widget(render_sub_search(rip_grep.to_string(), app.subchild_search.to_string()), chunks[1]),
             }
             rect.render_widget(status_bar, chunks[2]);
         })?;
@@ -121,8 +120,6 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
             match app.get_input_mode() {
                 ui::InputMode::Normal => {
                     if key.code == KeyCode::Char('q') {
-                        disable_raw_mode()?;
-                        terminal.show_cursor()?;
                         break;
                     }
                     let menu_item = selection_menu_handler(key.code);
@@ -149,21 +146,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                     action_nodes(&mut rip_grep, &mut app, key, &mut node_list_state);
                 },
                 MenuItem::SubSearch => {
-                    // let terminal = &mut terminal;
-                    // action_sub_search(&terminal, &mut rip_grep, &mut app, key, &mut node_list_state);
-
-
-
-                    // action_sub_search(&mut terminal, &mut rip_grep, &mut app, key);
-                    // action_sub_search(mut terminal, &mut rip_grep, &mut app, key);
-                    // action_sub_search(terminal, &mut rip_grep, &mut app, key);
-                    // action_sub_search(terminal, &rip_grep, &mut app, key);
-                    // let s = rip_grep.get_file_name_matches();
-                    // let s = rip_grep.get_file_name_matches().to_string();
-                    // action_sub_search(terminal, s, &mut app, key);
                     action_sub_search(terminal, rip_grep.get_file_name_matches(), &mut app, key);
-
-                    // action_sub_search(terminal, &mut rip_grep, &mut app, key);
                 },
                 _ => {
                     match key.code {

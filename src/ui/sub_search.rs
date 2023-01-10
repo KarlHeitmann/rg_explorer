@@ -7,19 +7,18 @@ use tui::{
     style::{Color, Style},
     text::{Span, Spans},
     widgets::{
-        Block, BorderType, Borders, Paragraph, ListState
+        Block, BorderType, Borders, Paragraph
     },
     Terminal,
 };
 
-use crate::nodes::RipGrep;
-use crate::ui::App;
+use crate::ui::{App, InputMode};
 use crate::wrapper::rip_grep_wrapper;
 
-pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
+pub fn render_sub_search<'a>(_rip_grep_command: String, subchild_search: String) -> Paragraph<'a> {
     let sub_search = Paragraph::new(vec![
         Spans::from(vec![Span::raw("")]),
-        Spans::from(vec![Span::raw(">>>>>>>>>> TODO Sub Search <<<<<<<<<<<")]),
+        Spans::from(vec![Span::raw(subchild_search)]),
         Spans::from(vec![Span::raw("")]),
     ])
     .alignment(Alignment::Center)
@@ -33,23 +32,22 @@ pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
     sub_search
 }
 
-// pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
-// pub fn action_sub_search(terminal: mut Terminal<CrosstermBackend<Stdout>>, rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
-// pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
-// pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, rip_grep: RipGrep, app: &mut App, key: KeyEvent) {
 pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, file_name_matches: String, app: &mut App, key: KeyEvent) {
-    match key.code {
-        KeyCode::Enter => {
-            // Create Rip Grep instance
-            // let rip_grep_child = RipGrep::new(app.subchild_search.clone());
-            // rip_grep_wrapper(&mut terminal, "fun".to_string(), rip_grep.get_file_name_matches());
-            // let s = rip_grep.get_file_name_matches();
-            rip_grep_wrapper(terminal, "fun".to_string(), file_name_matches);
+    match app.get_input_mode() {
+        InputMode::Normal => {
+            match key.code {
+                KeyCode::Char('i') => { app.set_input_mode(InputMode::Editing); },
+                _ => {}
+            }
+        },
+        InputMode::Editing => {
+            match key.code {
+                KeyCode::Enter => { rip_grep_wrapper(terminal, app.subchild_search.clone(), file_name_matches); app.set_input_mode(InputMode::Normal); }
+                KeyCode::Char(c) => { app.subchild_search.push(c); }
+                KeyCode::Backspace => { app.subchild_search.pop(); },
+                _ => {}
+            }
         }
-        KeyCode::Char(c) => {
-            app.subchild_search.push(c)
-        }
-        _ => {}
     }
 }
 

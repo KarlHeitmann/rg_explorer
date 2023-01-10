@@ -1,4 +1,5 @@
-use crossterm::terminal::enable_raw_mode;
+use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
+// use crossterm::terminal::disable_raw_mode;
 
 use std::io;
 
@@ -23,6 +24,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     wrapper::rip_grep_wrapper(&mut terminal, search_term.to_string(), String::from("."));
 
+    disable_raw_mode()?;
+    terminal.show_cursor()?;
     Ok(())
 }
 
