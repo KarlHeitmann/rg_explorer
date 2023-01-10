@@ -30,6 +30,7 @@ pub struct App {
     pub folder_filter: String,
     pub selected_node_tab: NodeTabSelected,
     pub offset_detail: usize,
+    pub subchild_search: String,
     input_mode: InputMode,
 }
 
@@ -38,6 +39,7 @@ impl Default for App {
         App {
             folder_filter: String::from(""),
             offset_detail: 0,
+            subchild_search: String::from(""),
             // selected_node_tab: String::from(""),
             selected_node_tab: NodeTabSelected::FileList,
             input_mode: InputMode::Normal,

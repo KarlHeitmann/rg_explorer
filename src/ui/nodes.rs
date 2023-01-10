@@ -1,6 +1,4 @@
-use crossterm::{
-    event::{KeyCode, KeyEvent},
-};
+use crossterm::event::{KeyCode, KeyEvent};
 
 use tui::{
     layout::Constraint,

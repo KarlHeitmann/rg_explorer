@@ -1,11 +1,16 @@
+use crossterm::event::{KeyCode, KeyEvent};
+
 use tui::{
     layout::Alignment,
     style::{Color, Style},
     text::{Span, Spans},
     widgets::{
-        Block, BorderType, Borders, Paragraph,
+        Block, BorderType, Borders, Paragraph, ListState
     },
 };
+
+use crate::nodes::RipGrep;
+use crate::ui::{App, InputMode};
 
 pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
     let sub_search = Paragraph::new(vec![
@@ -24,4 +29,24 @@ pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
     sub_search
 }
 
+pub fn action_nodes(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent, node_list_state: &mut ListState) {
+    /*
+    match app.get_input_mode() {
+        InputMode::Normal => {
+        }
+        InputMode::Editing => {
+        }
+    }
+    */
+    match key.code {
+        KeyCode::Enter => {
+            // Create Rip Grep instance
+            // let rip_grep_child = RipGrep::new(app.subchild_search.clone());
+        }
+        KeyCode::Char(c) => {
+            app.subchild_search.push(c)
+        }
+        _ => {}
+    }
+}
 
