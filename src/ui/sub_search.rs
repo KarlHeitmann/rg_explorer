@@ -10,7 +10,7 @@ use tui::{
 };
 
 use crate::nodes::RipGrep;
-use crate::ui::{App, InputMode};
+use crate::ui::App;
 
 pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
     let sub_search = Paragraph::new(vec![
@@ -29,15 +29,7 @@ pub fn render_sub_search<'a>(_rip_grep_command: String) -> Paragraph<'a> {
     sub_search
 }
 
-pub fn action_nodes(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent, node_list_state: &mut ListState) {
-    /*
-    match app.get_input_mode() {
-        InputMode::Normal => {
-        }
-        InputMode::Editing => {
-        }
-    }
-    */
+pub fn action_nodes(_rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent, _node_list_state: &mut ListState) {
     match key.code {
         KeyCode::Enter => {
             // Create Rip Grep instance

@@ -12,7 +12,7 @@ pub mod edit;
 pub mod nodes;
 pub mod sub_search;
 
-use crate::MenuItem;
+use crate::wrapper::MenuItem;
 
 #[derive(Clone, Copy)]
 pub enum InputMode {
