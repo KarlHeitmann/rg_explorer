@@ -98,10 +98,19 @@ pub struct RipGrep {
 }
 
 impl RipGrep {
-    pub fn new(search_term: String) -> Self {
+    pub fn get_file_name_matches(&self) -> String{
+        // self.nodes.0.iter().fold(String::from(""), |res, n| res.push(format!("{} ", n.file_name())))
+        // self.nodes.0.iter().fold(String::from(""), |res, n| res.push_str(format!("{} ", n.file_name())))
+        // self.nodes.0.iter().fold(String::from(""), |res, n| res.push_str(&format!("{} ", n.file_name())))
+        // self.nodes.0.iter().fold(String::from(""), |res, n| res.push_str(&format!("{} ", n.file_name())))
+
+        // self.nodes.0.iter().fold("".to_string(), |res, n| res.push_str(format!("{} ", n.file_name())))
+        self.nodes.0.iter().fold("".to_string(), |res, n| res + " " + &n.file_name())
+    }
+    pub fn new(search_term: String, folder: String) -> Self {
         let after_context = 1;
         let before_context = 1;
-        let folder = String::from(".");
+        // let folder = String::from(".");
         // let args = format!("{} --json", search_term);
         let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
         let data_raw = Self::launch_rg(args);

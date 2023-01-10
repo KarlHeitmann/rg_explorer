@@ -11,7 +11,7 @@ use crate::ui;
 
 use crate::ui::nodes::action_nodes;
 use crate::ui::edit::action_edit;
-use crate::ui::sub_search::render_sub_search;
+use crate::ui::sub_search::{render_sub_search, action_sub_search};
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
 use crate::ui::home::render_home;
@@ -60,8 +60,8 @@ fn selection_menu_handler(key_code: KeyCode) -> Option <MenuItem> {
 use std::io::Stdout;
 
  // pub fn rip_grep_wrapper(terminal: Terminal<B>) {
-pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, search_term: String) -> Result<(), Box<dyn std::error::Error>> {
-    let mut rip_grep = RipGrep::new(search_term); // TODO Create default
+pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, search_term: String, folders: String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut rip_grep = RipGrep::new(search_term, folders); // TODO Create default
     let mut app = ui::App::default();
     let mut active_menu_item = MenuItem::Home;
     let mut node_list_state = ListState::default();
@@ -116,6 +116,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
             rect.render_widget(status_bar, chunks[2]);
         })?;
 
+        // let terminal = &mut terminal;
         if let Event::Key(key) = event::read()? {
             match app.get_input_mode() {
                 ui::InputMode::Normal => {
@@ -146,6 +147,23 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                 },
                 MenuItem::Nodes => {
                     action_nodes(&mut rip_grep, &mut app, key, &mut node_list_state);
+                },
+                MenuItem::SubSearch => {
+                    // let terminal = &mut terminal;
+                    // action_sub_search(&terminal, &mut rip_grep, &mut app, key, &mut node_list_state);
+
+
+
+                    // action_sub_search(&mut terminal, &mut rip_grep, &mut app, key);
+                    // action_sub_search(mut terminal, &mut rip_grep, &mut app, key);
+                    // action_sub_search(terminal, &mut rip_grep, &mut app, key);
+                    // action_sub_search(terminal, &rip_grep, &mut app, key);
+                    // let s = rip_grep.get_file_name_matches();
+                    // let s = rip_grep.get_file_name_matches().to_string();
+                    // action_sub_search(terminal, s, &mut app, key);
+                    action_sub_search(terminal, rip_grep.get_file_name_matches(), &mut app, key);
+
+                    // action_sub_search(terminal, &mut rip_grep, &mut app, key);
                 },
                 _ => {
                     match key.code {

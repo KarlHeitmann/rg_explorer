@@ -21,7 +21,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
-    wrapper::rip_grep_wrapper(&mut terminal, search_term.to_string());
+    wrapper::rip_grep_wrapper(&mut terminal, search_term.to_string(), String::from("."));
 
     Ok(())
 }
