@@ -10,7 +10,7 @@ use tui::{
 };
 
 use crate::ui::NodeTabSelected;
-use crate::nodes::RipGrep;
+use crate::nodes::rip_grep::RipGrep;
 use crate::ui::{App, InputMode};
 
 pub fn render_nodes<'a>(node_list_state: &ListState, rip_grep: &'a RipGrep, app: &App) -> (List<'a>, Table<'a>) {

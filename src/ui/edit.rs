@@ -11,7 +11,8 @@ use tui::{
 };
 
 use crate::ui::{App, InputMode};
-use crate::nodes::RipGrep;
+// use crate::nodes::RipGrep;
+use crate::nodes::rip_grep::RipGrep;
 
 pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
     let color = match input_mode {
