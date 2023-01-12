@@ -2,6 +2,15 @@
 
 Explore the source code of your favorite projects using this TUI wrapper for [RipGrep](https://github.com/BurntSushi/ripgrep).
 
+This project is heavily inspired on Vim, because you have two different modes to input commands. The `normal mode`, which you can
+switch tabs, span more or less context lines, change selected file, etc. And the `insert mode`, which you can use to input data: 
+input a filter for folders, edit search term, etc.
+
+Much of the functionality of this project is not documented neither the UI provides you clues on what you can do. This project
+was built as an educational project, for me to practice Rust language, and for others to collaborate with this project and
+practice their coding skills. The intention is that newcomers can read the source code, experiment, find out what this project does
+and then collaborate with simple tasks as inline documentation for the project.
+
 It launches a `rg` instance with arguments defined by the user, and adds the `--json` flag so it can parse the output of `rg`
 command and creates a data structure with the parsed result. Take a look at this example
 
