@@ -16,7 +16,7 @@ struct AuxType {
 pub struct Nodes(pub Vec<Node>);
 
 impl Nodes {
-    pub fn new(data_raw: Vec<&str>) -> Self {
+    pub fn new(data_raw: Vec<&str>, after_context: usize, before_context: usize) -> Self {
         let mut v: Nodes = Nodes { 0: vec![]};
         let mut aux_vecs: Vec<(&str, Type)> = vec![];
 
@@ -28,7 +28,7 @@ impl Nodes {
                 },
                 Type::end => {
                     aux_vecs.push((d, t.r#type));
-                    let n: Node = Node::new(aux_vecs);
+                    let n: Node = Node::new(aux_vecs, after_context, before_context);
                     v.0.push(n);
                     aux_vecs = vec![];
                 }

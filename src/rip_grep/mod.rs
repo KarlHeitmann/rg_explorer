@@ -31,13 +31,13 @@ impl RipGrep {
         // let data_raw = Self::launch_rg(format!("{} --json -A {} -B {}", &search_term, after_context, before_context));
         match data_raw {
             Some(data_raw) => Self {
-                nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>()),
+                nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>(), after_context, before_context),
                 search_term_buffer: search_term.clone(),
                 search_term,
                 after_context, before_context, folder,
             },
             None => Self {
-                nodes: Nodes::new(vec![]),
+                nodes: Nodes::new(vec![], after_context, before_context),
                 search_term_buffer: search_term.clone(),
                 search_term,
                 after_context, before_context, folder,
@@ -107,10 +107,10 @@ impl RipGrep {
         match res {
             Some(res) => {
                 let res = res.split("\n").collect::<Vec<&str>>();
-                self.nodes = Nodes::new(res);
+                self.nodes = Nodes::new(res, *after_context, *before_context);
             },
             None => {
-                self.nodes = Nodes::new(vec![])
+                self.nodes = Nodes::new(vec![], *after_context, *before_context)
             }
         }
     }

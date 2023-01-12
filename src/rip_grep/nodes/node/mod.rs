@@ -17,13 +17,15 @@ pub struct Node {
     // context: Vec<Context>, // Option<Data>,
     r#match: Vec<Match>,
     end: Data,
+    after_context: usize,
+    before_context: usize,
 }
 
 impl Node {
     pub fn file_name(&self) -> String {
         self.begin.path.text.clone()
     }
-    pub fn new(data_raw: Vec<(&str, Type)>) -> Self {
+    pub fn new(data_raw: Vec<(&str, Type)>, after_context: usize, before_context: usize) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
         let mut r#match: Vec<Match> = vec![];
@@ -53,6 +55,7 @@ impl Node {
             begin: begin.unwrap(),
             r#match,
             end: end.unwrap(),
+            after_context, before_context,
         }
     }
     fn parse_subnode_begin(d: &str) -> Result<SubnodeBegin> {
