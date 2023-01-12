@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let folder = if cli.folder.is_none() { String::from(".") } else { cli.folder.unwrap() };
 
-    wrapper::rip_grep_wrapper(&mut terminal, cli.search_term, folder);
+    wrapper::rip_grep_wrapper(&mut terminal, cli.search_term, folder)?;
 
     disable_raw_mode()?;
     terminal.show_cursor()?;

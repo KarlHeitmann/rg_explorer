@@ -143,7 +143,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                     action_nodes(&mut rip_grep, &mut app, key, &mut node_list_state);
                 },
                 MenuItem::SubSearch => {
-                    action_sub_search(terminal, rip_grep.get_file_name_matches(), &mut app, key);
+                    action_sub_search(terminal, rip_grep.get_file_name_matches(), &mut app, key)?;
                 },
                 _ => {
                     match key.code {
