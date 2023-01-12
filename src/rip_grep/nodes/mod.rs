@@ -5,11 +5,6 @@ use serde_json::Result;
 
 pub mod node;
 pub use node::{Node,Type};
-pub mod rip_grep;
-
-pub struct RgExplorer {
-    nodes: Nodes,
-}
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
@@ -60,12 +55,6 @@ impl Nodes {
     fn parse_type(d: &str) -> Result<AuxType> {
         let n: AuxType = serde_json::from_str(d)?;
         Ok(n)
-    }
-}
-
-impl Display for RgExplorer {
-    fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        write!(f, "Rg Explorer: {:?}\n\n====================\n\n{}", self.nodes, self.nodes)
     }
 }
 

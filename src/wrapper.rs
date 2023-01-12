@@ -15,11 +15,8 @@ use crate::ui::sub_search::{render_sub_search, action_sub_search};
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
 use crate::ui::home::render_home;
-use crate::nodes::rip_grep::RipGrep;
+use crate::rip_grep::RipGrep;
 
-// use crate::ui::sub_search::action_nodes;
-
-// use crate::io_rg::RipGrep;
 #[derive(Error, Debug)]
 pub enum Error {
     #[error("error reading the DB file: {0}")]

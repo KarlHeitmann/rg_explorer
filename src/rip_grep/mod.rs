@@ -3,8 +3,10 @@ use std::str;
 use tui::widgets::Table;
 use std::process::{Command, Stdio};
 
-use crate::nodes::Node;
-use crate::nodes::Nodes;
+use crate::rip_grep::nodes::Nodes;
+use crate::rip_grep::nodes::Node;
+
+mod nodes;
 
 pub struct RipGrep {
     search_term: String,
@@ -138,4 +140,5 @@ impl Display for RipGrep {
         write!(f, "rg {search_term} --json -A {after_context} -B {before_context} {folder}")
     }
 }
+
 
