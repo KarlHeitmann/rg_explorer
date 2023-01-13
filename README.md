@@ -12,7 +12,35 @@ practice their coding skills. The intention is that newcomers can read the sourc
 and then collaborate with simple tasks as inline documentation for the project.
 
 It launches a `rg` instance with arguments defined by the user, and adds the `--json` flag so it can parse the output of `rg`
-command and creates a data structure with the parsed result. Take a look at this example
+command and creates a data structure with the parsed result. Take a look at this example, but first you must meet the dependencies
+in order to build this project
+
+# Dependencies
+
+You need to install [RipGrep](https://github.com/BurntSushi/ripgrep) in your local machine. Follow the steps on the repository to
+install RipGrep in your computer (Linux, Mac or Windows). To check if you have achieved to install RipGrep in your computer run this command:
+
+> rg
+
+If you installed it correctly, you should see something like this:
+
+```
+error: The following required arguments were not provided:                                                                                                                                                                                                                                                                                                                             │
+    <PATTERN>                                                                                                                                                                                                                                                                                                                                                                          │
+  │                                                                                                                                                                                                                                                                                                                                                                                    │
+USAGE:                                                                                                                                                                                                                                                                                                                                                                                 │
+                                                                                                                                                                                                                                                                                                                                                                                       │
+    rg [OPTIONS] PATTERN [PATH ...]                                                                                                                                                                                                                                                                                                                                                    │
+    rg [OPTIONS] -e PATTERN ... [PATH ...]                                                                                                                                                                                                                                                                                                                                             │
+    rg [OPTIONS] -f PATTERNFILE ... [PATH ...]                                                                                                                                                                                                                                                                                                                                         │
+    rg [OPTIONS] --files [PATH ...]                                                                                                                                                                                                                                                                                                                                                    │
+    rg [OPTIONS] --type-list                                                                                                                                                                                                                                                                                                                                                           │
+    command | rg [OPTIONS] PATTERN                                                                                                                                                                                                                                                                                                                                                     │
+    rg [OPTIONS] --help                                                                                                                                                                                                                                                                                                                                                                │
+    rg [OPTIONS] --version                                                                                                                                                                                                                                                                                                                                                             │
+
+For more information try --help                                                                                                                             
+```
 
 # Example
 
