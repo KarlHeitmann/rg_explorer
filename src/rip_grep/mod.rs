@@ -45,6 +45,45 @@ impl RipGrep {
         }
     }
 
+    pub fn update_context(&mut self, i: usize, delta: isize) {
+    // pub fn update_context(self, i: usize, delta: isize) {
+        // let mut node = self.nodes.0.get(i).unwrap();
+        // let node: &mut Node = self.nodes.0.get(i).unwrap();
+
+        // let node: &mut Node = self.nodes.0.get(i).unwrap();
+
+        // let node: &mut Node = node.unwrap();
+        /*
+        match node {
+            Some(&mut n) => {
+                n.update_context(self, delta)
+            },
+            None => {}
+        }
+        */
+        // node.update_context(delta)
+
+
+        // self.nodes.0.get_mut(i).unwrap().update_context(&self, delta);
+
+
+        // self.nodes.0.get_mut
+
+
+
+
+        // self.nodes.0.get_mut(i).unwrap().update_context(self, delta);
+        let n: &mut Node = self.nodes.0.get_mut(i).unwrap();
+        n.update_context(&self, delta);
+
+        // let ns = &mut self.nodes.0;
+        /*
+        let ns = &mut self.nodes.0;
+        let n = ns.get_mut(i).unwrap();
+        n.update_context(self, delta)
+        */
+    }
+
     pub fn decrease_context(&mut self) {
         if self.after_context > 0 { self.after_context -= 1; }
         if self.before_context > 0 { self.before_context -= 1; }
@@ -99,6 +138,32 @@ impl RipGrep {
     fn rg_args(&self) -> String {
         let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
         format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    }
+
+    fn args(&self, after_context: usize, before_context: usize) -> String {
+        let (search_term, folder) = (&self.search_term, &self.folder);
+        format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    }
+
+    /*
+    // fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
+    // fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<String> {
+    fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<&str> {
+        let args = self.args(after_context, before_context);
+        match Self::launch_rg(args) {
+            Some(res) => {
+                res.split("\n").collect::<Vec<&str>>()
+            },
+            None => {
+                vec![]
+            }
+        }
+    }
+    */
+
+    fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
+        let args = self.args(after_context, before_context);
+        Self::launch_rg(args).unwrap()
     }
 
     fn run(&mut self) {

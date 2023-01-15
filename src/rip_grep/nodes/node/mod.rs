@@ -4,6 +4,8 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::widgets::{ Cell, Row, Table, };
+use crate::rip_grep::RipGrep;
+use crate::rip_grep::nodes::AuxType;
 
 pub mod r#type;
 pub use r#type::Type;
@@ -22,9 +24,51 @@ pub struct Node {
 }
 
 impl Node {
+    // pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
+    pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
+        self.after_context += delta as usize;
+        self.before_context += delta as usize;
+        /*
+        if delta < 0 {
+            self.after_context += delta;
+            self.before_context += delta;
+        } else {
+            self.after_context += delta as usize;
+            self.before_context += delta as usize;
+        }
+        */
+
+        let output = rip_grep.run_immutable(self.after_context, self.before_context);
+        // match output.split("\n").collect() {
+        self.r#match = vec![];
+        let output = output.split("\n").collect::<Vec<&str>>();
+        for d in output {
+            let t = Self::parse_type(d).expect("Error parsing type at first level. Expected begin, match, end, context or summary");
+            match t.r#type {
+                // Type::r#match => {
+                Type::r#match | Type::context => {
+                    // self.r#match.push((d, t.r#type))
+                    self.r#match.push(Self::parse_subnode_match(d).expect("match expected").data)
+                },
+                /*
+                Type::context => {
+                    self.r#match.push((d, t.r#type))
+                },
+                */
+                _ => {}
+            }
+        }
+
+    }
+    fn parse_type(d: &str) -> Result<AuxType> {
+        let n: AuxType = serde_json::from_str(d)?;
+        Ok(n)
+    }
+
     pub fn file_name(&self) -> String {
         self.begin.path.text.clone()
     }
+
     pub fn new(data_raw: Vec<(&str, Type)>, after_context: usize, before_context: usize) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;

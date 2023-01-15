@@ -84,7 +84,8 @@ pub fn action_nodes(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent, node_l
         }
     }
     match key.code {
-        KeyCode::Left => { rip_grep.decrease_context(); },
+        // KeyCode::Left => { rip_grep.decrease_context(); },
+        KeyCode::Left => { rip_grep.update_context(node_list_state.selected().unwrap(), -1); },
         KeyCode::Right => { rip_grep.increase_context(); },
         KeyCode::Down => {
             match app.selected_node_tab {
