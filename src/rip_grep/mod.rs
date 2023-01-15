@@ -45,6 +45,12 @@ impl RipGrep {
         }
     }
 
+    pub fn update_context(&self, i: usize, delta: isize) {
+        let node = self.nodes.0.get(i).unwrap();
+        // node.update_context(delta)
+        node.update_context(self, delta)
+    }
+
     pub fn decrease_context(&mut self) {
         if self.after_context > 0 { self.after_context -= 1; }
         if self.before_context > 0 { self.before_context -= 1; }
@@ -99,6 +105,16 @@ impl RipGrep {
     fn rg_args(&self) -> String {
         let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
         format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    }
+
+    fn args(&self, after_context: usize, before_context: usize) -> String {
+        let (search_term, folder) = (&self.search_term, &self.folder);
+        format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    }
+
+    fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
+        let args = self.args(after_context, before_context);
+        Self::launch_rg(args).unwrap()
     }
 
     fn run(&mut self) {

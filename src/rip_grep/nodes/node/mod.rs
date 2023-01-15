@@ -4,6 +4,7 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::widgets::{ Cell, Row, Table, };
+use crate::rip_grep::RipGrep;
 
 pub mod r#type;
 pub use r#type::Type;
@@ -22,9 +23,14 @@ pub struct Node {
 }
 
 impl Node {
+    pub fn update_context(&self, rip_grep: &RipGrep, delta: isize) {
+        rip_grep.run_immutable(self.after_context, self.before_context);
+    }
+
     pub fn file_name(&self) -> String {
         self.begin.path.text.clone()
     }
+
     pub fn new(data_raw: Vec<(&str, Type)>, after_context: usize, before_context: usize) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;
