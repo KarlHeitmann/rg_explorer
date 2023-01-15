@@ -96,21 +96,22 @@ impl RipGrep {
         }
     }
 
+    fn rg_args(&self) -> String {
+        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
+        format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    }
+
     fn run(&mut self) {
         self.search_term = self.search_term_buffer.clone();
-        // let args = format!("{} --json", self.search_term);
-        // let search_term = &self.search_term;
-        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
-        // let args = format!("{search_term} --json");
-        let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
+        let args = self.rg_args();
         let res = Self::launch_rg(args);
         match res {
             Some(res) => {
                 let res = res.split("\n").collect::<Vec<&str>>();
-                self.nodes = Nodes::new(res, *after_context, *before_context);
+                self.nodes = Nodes::new(res, self.after_context, self.before_context);
             },
             None => {
-                self.nodes = Nodes::new(vec![], *after_context, *before_context)
+                self.nodes = Nodes::new(vec![], self.after_context, self.before_context)
             }
         }
     }
