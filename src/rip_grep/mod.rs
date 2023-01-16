@@ -45,10 +45,43 @@ impl RipGrep {
         }
     }
 
-    pub fn update_context(&self, i: usize, delta: isize) {
-        let node = self.nodes.0.get(i).unwrap();
+    pub fn update_context(&mut self, i: usize, delta: isize) {
+    // pub fn update_context(self, i: usize, delta: isize) {
+        // let mut node = self.nodes.0.get(i).unwrap();
+        // let node: &mut Node = self.nodes.0.get(i).unwrap();
+
+        // let node: &mut Node = self.nodes.0.get(i).unwrap();
+
+        // let node: &mut Node = node.unwrap();
+        /*
+        match node {
+            Some(&mut n) => {
+                n.update_context(self, delta)
+            },
+            None => {}
+        }
+        */
         // node.update_context(delta)
-        node.update_context(self, delta)
+
+
+        // self.nodes.0.get_mut(i).unwrap().update_context(&self, delta);
+
+
+        // self.nodes.0.get_mut
+
+
+
+
+        // self.nodes.0.get_mut(i).unwrap().update_context(self, delta);
+        let n: &mut Node = self.nodes.0.get_mut(i).unwrap();
+        n.update_context(&self, delta);
+
+        // let ns = &mut self.nodes.0;
+        /*
+        let ns = &mut self.nodes.0;
+        let n = ns.get_mut(i).unwrap();
+        n.update_context(self, delta)
+        */
     }
 
     pub fn decrease_context(&mut self) {
