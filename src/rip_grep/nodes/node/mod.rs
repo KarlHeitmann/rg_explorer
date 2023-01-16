@@ -24,7 +24,16 @@ pub struct Node {
 
 impl Node {
     pub fn update_context(&self, rip_grep: &RipGrep, delta: isize) {
-        rip_grep.run_immutable(self.after_context, self.before_context);
+        let output = rip_grep.run_immutable(self.after_context, self.before_context);
+        match output.split("\n").collect() {
+            Some(res) => {
+
+            },
+            None => {
+                vec![]
+            }
+        };
+
     }
 
     pub fn file_name(&self) -> String {

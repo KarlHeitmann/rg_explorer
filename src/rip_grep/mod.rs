@@ -112,6 +112,22 @@ impl RipGrep {
         format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
     }
 
+    /*
+    // fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
+    // fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<String> {
+    fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<&str> {
+        let args = self.args(after_context, before_context);
+        match Self::launch_rg(args) {
+            Some(res) => {
+                res.split("\n").collect::<Vec<&str>>()
+            },
+            None => {
+                vec![]
+            }
+        }
+    }
+    */
+
     fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
         let args = self.args(after_context, before_context);
         Self::launch_rg(args).unwrap()
