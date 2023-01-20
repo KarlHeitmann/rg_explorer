@@ -42,8 +42,7 @@ impl Explorer {
 
     pub fn update_context(&mut self, i: usize, delta: isize) {
         let n: &mut Node = self.nodes.0.get_mut(i).unwrap();
-        // n.update_context(&self, delta);
-        n.update_context();
+        n.update_context(&self.grep, delta);
     }
 
     pub fn node_detail(&self, i: usize, offset_detail: usize) -> Table {
@@ -126,29 +125,13 @@ impl RipGrep {
         format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
     }
 
-    fn args(&self, after_context: usize, before_context: usize) -> String {
-        let (search_term, folder) = (&self.search_term, &self.folder);
-        format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+    fn args(&self, after_context: usize, before_context: usize, file: String) -> String {
+        let search_term = &self.search_term;
+        format!("{search_term} --json -A {after_context} -B {before_context} {file}")
     }
 
-    /*
-    // fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
-    // fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<String> {
-    fn run_immutable(&self, after_context: usize, before_context: usize) -> Vec<&str> {
-        let args = self.args(after_context, before_context);
-        match Self::launch_rg(args) {
-            Some(res) => {
-                res.split("\n").collect::<Vec<&str>>()
-            },
-            None => {
-                vec![]
-            }
-        }
-    }
-    */
-
-    fn run_immutable(&self, after_context: usize, before_context: usize) -> String {
-        let args = self.args(after_context, before_context);
+    fn run_immutable(&self, after_context: usize, before_context: usize, file: String) -> String {
+        let args = self.args(after_context, before_context, file);
         Self::launch_rg(args).unwrap()
     }
 

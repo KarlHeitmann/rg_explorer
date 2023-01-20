@@ -4,7 +4,7 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::widgets::{ Cell, Row, Table, };
-use crate::rip_grep::RipGrep;
+use crate::rip_grep::{ Explorer, RipGrep };
 use crate::rip_grep::nodes::AuxType;
 
 pub mod r#type;
@@ -36,28 +36,30 @@ impl Node {
         */
     // }
 
-    // pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
-    pub fn update_context(&mut self) {
-        /*
-        self.after_context += delta as usize;
-        self.before_context += delta as usize;
-        let output = rip_grep.run_immutable(self.after_context, self.before_context);
-        // match output.split("\n").collect() {
+    pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
+        if delta > 0 {
+            self.after_context += delta as usize;
+            self.before_context += delta as usize;
+        } else {
+            let delta: usize = delta.wrapping_abs() as usize;
+            // let delta: usize = delta.abs() as usize;
+            if self.before_context > 0 { self.before_context -= delta; }
+            if self.after_context > 0 { self.after_context -= delta; }
+            // self.after_context -= delta;
+        }
+        // panic!("OH LA LA");
+        let output = rip_grep.run_immutable(self.after_context, self.before_context, self.file_name());
         self.r#match = vec![];
         let output = output.split("\n").collect::<Vec<&str>>();
         for d in output {
             let t = Self::parse_type(d).expect("Error parsing type at first level. Expected begin, match, end, context or summary");
             match t.r#type {
-                // Type::r#match => {
                 Type::r#match | Type::context => {
-                    // self.r#match.push((d, t.r#type))
                     self.r#match.push(Self::parse_subnode_match(d).expect("match expected").data)
                 },
                 _ => {}
             }
         }
-        */
-        todo!();
 
     }
     fn parse_type(d: &str) -> Result<AuxType> {
