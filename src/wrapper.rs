@@ -15,7 +15,7 @@ use crate::ui::sub_search::{render_sub_search, action_sub_search};
 use crate::ui::edit::render_edit;
 use crate::ui::nodes::render_nodes;
 use crate::ui::home::render_home;
-use crate::rip_grep::RipGrep;
+use crate::rip_grep::Explorer;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -55,9 +55,9 @@ fn selection_menu_handler(key_code: KeyCode) -> Option <MenuItem> {
 }
 use std::io::Stdout;
 
- // pub fn rip_grep_wrapper(terminal: Terminal<B>) {
-pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, search_term: String, folders: String) -> Result<(), Box<dyn std::error::Error>> {
-    let mut rip_grep = RipGrep::new(search_term, folders); // TODO Create default
+ // pub fn explorer(terminal: Terminal<B>) {
+pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, search_term: String, folders: String) -> Result<(), Box<dyn std::error::Error>> {
+    let mut explorer = Explorer::new(search_term, folders); // TODO Create default
     let mut app = ui::App::default();
     let mut active_menu_item = MenuItem::Home;
     let mut node_list_state = ListState::default();
@@ -66,7 +66,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
 
     loop {
         terminal.draw(|rect| {
-            let rip_grep = &mut rip_grep;
+            let explorer = &mut explorer;
             let chunks = ui::get_layout_chunks(rect.size());
 
             let status_bar = ui::draw_status_bar(app.get_input_mode());
@@ -75,10 +75,10 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
-                MenuItem::Home => rect.render_widget(render_home(rip_grep.to_string()), chunks[1]),
+                MenuItem::Home => rect.render_widget(render_home(explorer.to_string()), chunks[1]),
                 MenuItem::Nodes => {
-                    rip_grep.run_wrapper();
-                    if rip_grep.nodes.len() == 0{
+                    explorer.run_wrapper();
+                    if explorer.nodes.len() == 0{
                         // TODO: Put a message saying no results
                     } else {
                         let nodes_chunks = Layout::default()
@@ -87,19 +87,19 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                                 [Constraint::Percentage(20), Constraint::Percentage(80)].as_ref(),
                             )
                             .split(chunks[1]);
-                        let (left, right) = render_nodes(&node_list_state, &rip_grep, &app);
+                        let (left, right) = render_nodes(&node_list_state, &explorer, &app);
                         rect.render_stateful_widget(left, nodes_chunks[0], &mut node_list_state);
                         rect.render_widget(right, nodes_chunks[1]);
                     }
                 },
                 MenuItem::Edit => {
-                    let (first, second, edit_chunks) = render_edit(&rip_grep, chunks[1], app.get_input_mode());
+                    let (first, second, edit_chunks) = render_edit(&explorer.grep, chunks[1], app.get_input_mode());
                     rect.render_widget(first, edit_chunks[0]);
                     rect.render_widget(second, edit_chunks[1]);
                     match app.get_input_mode() {
                         ui::InputMode::Editing => { 
                             rect.set_cursor(
-                                edit_chunks[0].x + rip_grep.search_term_buffer.len() as u16 + 1,
+                                edit_chunks[0].x + explorer.grep.search_term_buffer.len() as u16 + 1,
                                 edit_chunks[0].y + 1,
                             )
 
@@ -107,7 +107,7 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                         _ => {},
                     }
                 },
-                MenuItem::SubSearch => rect.render_widget(render_sub_search(rip_grep.to_string(), app.subchild_search.to_string()), chunks[1]),
+                MenuItem::SubSearch => rect.render_widget(render_sub_search(explorer.to_string(), app.subchild_search.to_string()), chunks[1]),
             }
             rect.render_widget(status_bar, chunks[2]);
         })?;
@@ -137,13 +137,13 @@ pub fn rip_grep_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
             }
             match active_menu_item {
                 MenuItem::Edit => {
-                    action_edit(&mut rip_grep, &mut app, key);
+                    action_edit(&mut explorer, &mut app, key);
                 },
                 MenuItem::Nodes => {
-                    action_nodes(&mut rip_grep, &mut app, key, &mut node_list_state);
+                    action_nodes(&mut explorer, &mut app, key, &mut node_list_state);
                 },
                 MenuItem::SubSearch => {
-                    action_sub_search(terminal, rip_grep.get_file_name_matches(), &mut app, key)?;
+                    action_sub_search(terminal, explorer.get_file_name_matches(), &mut app, key)?;
                 },
                 _ => {
                     match key.code {

@@ -25,9 +25,6 @@ pub struct Node {
 
 impl Node {
     // pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
-    pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
-        self.after_context += delta as usize;
-        self.before_context += delta as usize;
         /*
         if delta < 0 {
             self.after_context += delta;
@@ -37,7 +34,13 @@ impl Node {
             self.before_context += delta as usize;
         }
         */
+    // }
 
+    // pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
+    pub fn update_context(&mut self) {
+        /*
+        self.after_context += delta as usize;
+        self.before_context += delta as usize;
         let output = rip_grep.run_immutable(self.after_context, self.before_context);
         // match output.split("\n").collect() {
         self.r#match = vec![];
@@ -50,14 +53,11 @@ impl Node {
                     // self.r#match.push((d, t.r#type))
                     self.r#match.push(Self::parse_subnode_match(d).expect("match expected").data)
                 },
-                /*
-                Type::context => {
-                    self.r#match.push((d, t.r#type))
-                },
-                */
                 _ => {}
             }
         }
+        */
+        todo!();
 
     }
     fn parse_type(d: &str) -> Result<AuxType> {

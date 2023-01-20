@@ -11,7 +11,7 @@ use tui::{
 };
 
 use crate::ui::{App, InputMode};
-use crate::rip_grep::RipGrep;
+use crate::rip_grep::{ Explorer, RipGrep };
 
 
 pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
@@ -51,7 +51,7 @@ pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: I
     (input, home, edit_chunks)
 }
 
-pub fn action_edit(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
+pub fn action_edit(explorer: &mut Explorer, app: &mut App, key: KeyEvent) {
     match app.get_input_mode() {
         InputMode::Normal => {
             match key.code {
@@ -61,8 +61,8 @@ pub fn action_edit(rip_grep: &mut RipGrep, app: &mut App, key: KeyEvent) {
         },
         InputMode::Editing => {
             match key.code {
-                KeyCode::Char(c) => { rip_grep.search_term_buffer.push(c); },
-                KeyCode::Backspace => { rip_grep.search_term_buffer.pop(); }
+                KeyCode::Char(c) => { explorer.grep.search_term_buffer.push(c); },
+                KeyCode::Backspace => { explorer.grep.search_term_buffer.pop(); }
                 _ => {}
             }
         }
