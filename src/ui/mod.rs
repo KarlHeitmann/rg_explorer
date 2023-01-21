@@ -33,7 +33,7 @@ pub enum FilterMode {
 
 pub struct App {
     pub folder_filter: String,
-    pub selected_node_tab: NodeTabSelected,
+    selected_node_tab: NodeTabSelected,
     pub filter_mode: FilterMode,
     pub offset_detail: usize,
     pub subchild_search: String,
