@@ -42,7 +42,7 @@ impl Nodes {
     pub fn filtered_nodes(&self, folder_filter: &String, filter_mode: &FilterMode) -> Vec<&Node> {
         let items = &self.0;
         match filter_mode {
-            FilterMode::Embrace => {
+            FilterMode::Contain => {
                 items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
             },
             FilterMode::Omit => {

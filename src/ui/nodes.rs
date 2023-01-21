@@ -18,7 +18,17 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
     let selected_node_tab = &app.selected_node_tab;
     let (style_list, style_detail) = match selected_node_tab {
         NodeTabSelected::Detail  => { (Style::default().fg(Color::White), Style::default().fg(Color::Green)) },
-        NodeTabSelected::FileList => { (Style::default().fg(Color::Green), Style::default().fg(Color::White)) },
+        NodeTabSelected::FileList => {
+            match app.filter_mode {
+                FilterMode::Contain => {
+                    (Style::default().fg(Color::Green), Style::default().fg(Color::White))
+                }
+                FilterMode::Omit => {
+                    (Style::default().fg(Color::Red), Style::default().fg(Color::White))
+                }
+
+            }
+        },
     };
     let nodes_block:Block = Block::default()
         .borders(Borders::ALL)
@@ -72,7 +82,7 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
         InputMode::Normal => {
             match key.code {
                 KeyCode::Char('i') => app.set_input_mode(InputMode::Editing),
-                KeyCode::Char('e') => app.filter_mode = FilterMode::Embrace,
+                KeyCode::Char('c') => app.filter_mode = FilterMode::Contain,
                 KeyCode::Char('o') => app.filter_mode = FilterMode::Omit,
                 _ => {}
             }

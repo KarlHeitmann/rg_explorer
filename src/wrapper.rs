@@ -69,7 +69,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
             let explorer = &mut explorer;
             let chunks = ui::get_layout_chunks(rect.size());
 
-            let status_bar = ui::draw_status_bar(app.get_input_mode());
+            let status_bar = ui::draw_status_bar(&app);
 
             let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item);
 
