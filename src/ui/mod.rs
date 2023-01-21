@@ -26,9 +26,15 @@ pub enum NodeTabSelected {
     Detail,
 }
 
+pub enum FilterMode {
+    Embrace,
+    Omit,
+}
+
 pub struct App {
     pub folder_filter: String,
     pub selected_node_tab: NodeTabSelected,
+    pub filter_mode: FilterMode,
     pub offset_detail: usize,
     pub subchild_search: String,
     input_mode: InputMode,
@@ -42,6 +48,7 @@ impl Default for App {
             subchild_search: String::from(""),
             // selected_node_tab: String::from(""),
             selected_node_tab: NodeTabSelected::FileList,
+            filter_mode: FilterMode::Embrace,
             input_mode: InputMode::Normal,
         }
     }
