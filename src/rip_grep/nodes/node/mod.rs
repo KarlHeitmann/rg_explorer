@@ -4,7 +4,7 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::widgets::{ Cell, Row, Table, };
-use crate::rip_grep::{ Explorer, RipGrep };
+use crate::rip_grep::RipGrep;
 use crate::rip_grep::nodes::AuxType;
 
 pub mod r#type;
@@ -24,30 +24,15 @@ pub struct Node {
 }
 
 impl Node {
-    // pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
-        /*
-        if delta < 0 {
-            self.after_context += delta;
-            self.before_context += delta;
-        } else {
-            self.after_context += delta as usize;
-            self.before_context += delta as usize;
-        }
-        */
-    // }
-
     pub fn update_context(&mut self, rip_grep: &RipGrep, delta: isize) {
         if delta > 0 {
             self.after_context += delta as usize;
             self.before_context += delta as usize;
         } else {
             let delta: usize = delta.wrapping_abs() as usize;
-            // let delta: usize = delta.abs() as usize;
             if self.before_context > 0 { self.before_context -= delta; }
             if self.after_context > 0 { self.after_context -= delta; }
-            // self.after_context -= delta;
         }
-        // panic!("OH LA LA");
         let output = rip_grep.run_immutable(self.after_context, self.before_context, self.file_name());
         self.r#match = vec![];
         let output = output.split("\n").collect::<Vec<&str>>();
@@ -104,20 +89,17 @@ impl Node {
             after_context, before_context,
         }
     }
+
     fn parse_subnode_begin(d: &str) -> Result<SubnodeBegin> {
         let n: SubnodeBegin = serde_json::from_str(d)?;
         Ok(n)
     }
+
     fn parse_subnode_match(d: &str) -> Result<SubnodeMatch> {
         let n: SubnodeMatch = serde_json::from_str(d)?;
         Ok(n)
     }
-    /*
-    fn parse_subnode_context(d: &str) -> Result<SubnodeContext> {
-        let n: SubnodeContext = serde_json::from_str(d)?;
-        Ok(n)
-    }
-    */
+
     fn parse_data(d: &str) -> Result<Data> {
         let n: Data = serde_json::from_str(d)?;
         Ok(n)
@@ -137,6 +119,7 @@ impl Node {
             })
         )
     }
+
     pub fn summary(&self) -> String {
         format!(" { }", self.begin.path.text.to_string())
     }

@@ -61,44 +61,13 @@ impl RipGrep {
     pub fn new(search_term: String, folder: String) -> Self {
         let after_context = 1;
         let before_context = 1;
-        // let folder = String::from(".");
-        // let args = format!("{} --json", search_term);
-        let args = format!("{search_term} --json -A {after_context} -B {before_context} {folder}");
-        let data_raw = Self::launch_rg(args);
-        // let data_raw = Self::launch_rg(format!("{} --json -A {} -B {}", &search_term, after_context, before_context));
-        match data_raw {
-            Some(data_raw) => Self {
-                // nodes: Nodes::new(data_raw.split("\n").collect::<Vec<&str>>(), after_context, before_context),
-                search_term_buffer: search_term.clone(),
-                search_term,
-                after_context, before_context, folder,
-            },
-            None => Self {
-                // nodes: Nodes::new(vec![], after_context, before_context),
-                search_term_buffer: search_term.clone(),
-                search_term,
-                after_context, before_context, folder,
-            }
+        Self {
+            search_term_buffer: search_term.clone(),
+            search_term,
+            after_context, before_context, folder,
         }
     }
 
-    pub fn get_params(&self) -> (String, String, String, String) {
-        (self.search_term.clone(), self.after_context.to_string(), self.before_context.to_string(), self.folder.clone())
-    }
-
-    pub fn decrease_context(&mut self) {
-        if self.after_context > 0 { self.after_context -= 1; }
-        if self.before_context > 0 { self.before_context -= 1; }
-        self.run();
-    }
-
-    pub fn increase_context(&mut self) {
-        self.after_context += 1;
-        self.before_context += 1;
-        self.run();
-    }
-
-    // fn launch_rg(arguments: &String) -> Option<String> {
     fn launch_rg(arguments: String) -> Option<String> {
         // let command = format!("{} --json -A {} -B {}", arguments, );
         let arguments = arguments.split(' ');
@@ -111,7 +80,6 @@ impl RipGrep {
             .wait_with_output()
             .expect("failed to wait on child");
 
-        // assert!(output.status.success()); // Catch failing case: no matches, rg exits with status code 1
         let s = match str::from_utf8(&output.stdout) {
             Ok(v) => v,
             Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
@@ -153,7 +121,6 @@ impl RipGrep {
     pub fn raw_output(&self) -> String {
         let (search_term, after_context, before_context) = (&self.search_term, &self.after_context, &self.before_context);
         let args = format!("{search_term} --json -A {after_context} -B {before_context}");
-        // let res:String = Self::launch_rg(args);
         let res = Self::launch_rg(args);
         match res {
             Some(res) => format!("{res}"),
@@ -178,9 +145,7 @@ impl Display for RipGrep {
 
 impl Display for Explorer {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        let (search_term, after_context, before_context, folder) = self.grep.get_params();
         write!(f, "{}", self.grep)
-        // write!(f, "rg {search_term} --json -A {after_context} -B {before_context} {folder}")
     }
 }
 
