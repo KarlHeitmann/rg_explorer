@@ -27,7 +27,7 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
         .border_type(BorderType::Plain);
 
     // let items: Vec<ListItem> = explorer.nodes.filtered_nodes(folder_filter)
-    let items: Vec<ListItem> = explorer.nodes.filtered_nodes(folder_filter, &app.filter_mode)
+    let items: Vec<ListItem> = explorer.nodes.filtered_nodes(&folder_filter, &app.filter_mode)
         .into_iter()
         .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
@@ -93,7 +93,7 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
             match app.selected_node_tab {
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
-                        let amount_nodes = explorer.nodes.filtered_nodes(app.folder_filter.clone(), &app.filter_mode).len(); // TODO: Consider borrow instead of clone
+                        let amount_nodes = explorer.nodes.filtered_nodes(&app.folder_filter, &app.filter_mode).len(); // TODO: Consider borrow instead of clone
                         if selected >= amount_nodes - 1 {
                             node_list_state.select(Some(0));
                         } else {
@@ -113,7 +113,7 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
             match app.selected_node_tab {
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
-                        let amount_nodes = explorer.nodes.filtered_nodes(app.folder_filter.clone(), &app.filter_mode).len(); // TODO: Consider borrow instead of clone
+                        let amount_nodes = explorer.nodes.filtered_nodes(&app.folder_filter, &app.filter_mode).len(); // TODO: Consider borrow instead of clone
                         if selected > 0 {
                             node_list_state.select(Some(selected - 1));
                         } else {
