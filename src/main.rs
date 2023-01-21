@@ -8,7 +8,7 @@ use tui::{
 };
 use clap::Parser;
 
-mod rip_grep;
+mod explorer;
 mod ui;
 mod wrapper;
 

@@ -11,7 +11,7 @@ use tui::{
 };
 
 use crate::ui::{App, InputMode};
-use crate::rip_grep::{ Explorer, RipGrep };
+use crate::explorer::{ Explorer, RipGrep };
 
 
 pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {

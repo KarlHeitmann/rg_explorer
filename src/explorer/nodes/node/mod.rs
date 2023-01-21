@@ -4,8 +4,8 @@ use serde_json::Result;
 
 // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
 use tui::widgets::{ Cell, Row, Table, };
-use crate::rip_grep::RipGrep;
-use crate::rip_grep::nodes::AuxType;
+use crate::explorer::RipGrep;
+use crate::explorer::nodes::AuxType;
 
 pub mod r#type;
 pub use r#type::Type;

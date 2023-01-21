@@ -3,8 +3,8 @@ use std::str;
 use tui::widgets::Table;
 use std::process::{Command, Stdio};
 
-use crate::rip_grep::nodes::Nodes;
-use crate::rip_grep::nodes::Node;
+use crate::explorer::nodes::Nodes;
+use crate::explorer::nodes::Node;
 
 mod nodes;
 

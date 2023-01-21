@@ -10,7 +10,7 @@ use tui::{
 };
 
 use crate::ui::NodeTabSelected;
-use crate::rip_grep::Explorer;
+use crate::explorer::Explorer;
 use crate::ui::{App, InputMode};
 
 pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app: &App) -> (List<'a>, Table<'a>) {
