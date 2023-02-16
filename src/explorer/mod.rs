@@ -3,6 +3,7 @@ use std::str;
 use tui::widgets::Table;
 use std::process::{Command, Stdio};
 
+use crate::ui::FilterMode;
 use crate::explorer::nodes::Nodes;
 use crate::explorer::nodes::Node;
 
@@ -45,15 +46,24 @@ impl Explorer {
         n.update_context(&self.grep, delta);
     }
 
-    pub fn node_detail(&self, i: usize, offset_detail: usize) -> Table {
-        match self.nodes.0.get(i) {
+    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> Table {
+        match self.get_node(i, folder_filter, filter_mode) {
             Some(n) => n.detail(offset_detail),
             None => Table::new(vec![])
         }
     }
 
-    pub fn get_node(&self, i: usize) -> &Node {
-        self.nodes.0.get(i).expect("Must have a node")
+    pub fn get_node(&self, i: usize, folder_filter: &String, filter_mode: &FilterMode) -> Option<&Node> {
+        let items = &self.nodes.0;
+        let items: Vec<&Node> = match filter_mode {
+            FilterMode::Contain => {
+                items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
+            },
+            FilterMode::Omit => {
+                items.into_iter().filter(|node| !node.file_name().contains(folder_filter)).collect()
+            }
+        };
+        items.get(i).copied()
     }
 }
 

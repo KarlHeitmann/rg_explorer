@@ -54,9 +54,9 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
             .add_modifier(Modifier::BOLD),
     );
 
-    let detail_title = explorer.get_node(node_list_state.selected().expect("there is always a selected node"));
+    let detail_title = explorer.get_node(node_list_state.selected().expect("there is always a selected node"), &folder_filter, &app.filter_mode).expect("wups");
 
-    let node_detail = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail)
+    let node_detail = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &app.filter_mode)
         .header(Row::new(vec![
             Cell::from(Span::styled(
                 format!(" {}", detail_title.file_name()),
@@ -82,8 +82,14 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
         InputMode::Normal => {
             match key.code {
                 KeyCode::Char('i') => app.set_input_mode(InputMode::Editing),
-                KeyCode::Char('c') => app.filter_mode = FilterMode::Contain,
-                KeyCode::Char('o') => app.filter_mode = FilterMode::Omit,
+                KeyCode::Char('c') => { 
+                    app.filter_mode = FilterMode::Contain;
+                    // TODO: run again filter to refresh nodes with filter mode
+                },
+                KeyCode::Char('o') => {
+                    app.filter_mode = FilterMode::Omit
+                    // TODO: run again filter to refresh nodes with filter mode
+                },
                 _ => {}
             }
         }
