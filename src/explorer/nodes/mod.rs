@@ -39,18 +39,6 @@ impl Nodes {
         v
     }
 
-    pub fn filtered_nodes(&self, folder_filter: &String, filter_mode: &FilterMode) -> Vec<&Node> {
-        let items = &self.0;
-        match filter_mode {
-            FilterMode::Contain => {
-                items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
-            },
-            FilterMode::Omit => {
-                items.into_iter().filter(|node| !node.file_name().contains(folder_filter)).collect()
-            }
-        }
-    }
-
     pub fn node_matches_count(&self, i: usize) -> usize {
         self.0.get(i).expect("Node must exists").len_matches_all()
     }

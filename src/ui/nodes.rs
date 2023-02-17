@@ -14,12 +14,12 @@ use crate::explorer::Explorer;
 use crate::ui::{App, InputMode, FilterMode};
 
 pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app: &App) -> (List<'a>, Table<'a>) {
-    let folder_filter = app.folder_filter.clone();
+    let folder_filter = explorer.folder_filter.clone();
     let selected_node_tab = &app.selected_node_tab;
     let (style_list, style_detail) = match selected_node_tab {
         NodeTabSelected::Detail  => { (Style::default().fg(Color::White), Style::default().fg(Color::Green)) },
         NodeTabSelected::FileList => {
-            match app.filter_mode {
+            match explorer.filter_mode {
                 FilterMode::Contain => {
                     (Style::default().fg(Color::Green), Style::default().fg(Color::White))
                 }
@@ -37,7 +37,7 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
         .border_type(BorderType::Plain);
 
     // let items: Vec<ListItem> = explorer.nodes.filtered_nodes(folder_filter)
-    let items: Vec<ListItem> = explorer.nodes.filtered_nodes(&folder_filter, &app.filter_mode)
+    let items: Vec<ListItem> = explorer.filtered_nodes()
         .into_iter()
         .map(|node| {
             ListItem::new(Spans::from(vec![Span::styled(
@@ -54,9 +54,9 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
             .add_modifier(Modifier::BOLD),
     );
 
-    let detail_title = explorer.get_node(node_list_state.selected().expect("there is always a selected node"), &folder_filter, &app.filter_mode).expect("wups");
+    let detail_title = explorer.get_node(node_list_state.selected().expect("there is always a selected node"), &folder_filter, &explorer.filter_mode).expect("wups");
 
-    let node_detail = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &app.filter_mode)
+    let node_detail = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &explorer.filter_mode)
         .header(Row::new(vec![
             Cell::from(Span::styled(
                 format!(" {}", detail_title.file_name()),
@@ -83,11 +83,11 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
             match key.code {
                 KeyCode::Char('i') => app.set_input_mode(InputMode::Editing),
                 KeyCode::Char('c') => { 
-                    app.filter_mode = FilterMode::Contain;
+                    explorer.filter_mode = FilterMode::Contain;
                     // TODO: run again filter to refresh nodes with filter mode
                 },
                 KeyCode::Char('o') => {
-                    app.filter_mode = FilterMode::Omit
+                    explorer.filter_mode = FilterMode::Omit
                     // TODO: run again filter to refresh nodes with filter mode
                 },
                 _ => {}
@@ -95,21 +95,21 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
         }
         InputMode::Editing => {
             match key.code {
-                KeyCode::Char(c) => { app.folder_filter.push(c); },
-                KeyCode::Backspace => { app.folder_filter.pop(); },
+                KeyCode::Char(c) => { explorer.folder_filter.push(c); },
+                KeyCode::Backspace => { explorer.folder_filter.pop(); },
                 _ => {}
             }
         }
     }
     match key.code {
         // KeyCode::Left => { explorer.decrease_context(); },
-        KeyCode::Left => { explorer.update_context(node_list_state.selected().unwrap(), -1, &app.folder_filter, &app.filter_mode); },
-        KeyCode::Right => { explorer.update_context(node_list_state.selected().unwrap(), 1, &app.folder_filter, &app.filter_mode); },
+        KeyCode::Left => { explorer.update_context(node_list_state.selected().unwrap(), -1); },
+        KeyCode::Right => { explorer.update_context(node_list_state.selected().unwrap(), 1); },
         KeyCode::Down => {
             match app.selected_node_tab {
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
-                        let amount_nodes = explorer.nodes.filtered_nodes(&app.folder_filter, &app.filter_mode).len(); // TODO: Consider borrow instead of clone
+                        let amount_nodes = explorer.filtered_nodes().len(); // TODO: Consider borrow instead of clone
                         if selected >= amount_nodes - 1 {
                             node_list_state.select(Some(0));
                         } else {
@@ -129,7 +129,7 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
             match app.selected_node_tab {
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
-                        let amount_nodes = explorer.nodes.filtered_nodes(&app.folder_filter, &app.filter_mode).len(); // TODO: Consider borrow instead of clone
+                        let amount_nodes = explorer.filtered_nodes().len(); // TODO: Consider borrow instead of clone
                         if selected > 0 {
                             node_list_state.select(Some(selected - 1));
                         } else {
