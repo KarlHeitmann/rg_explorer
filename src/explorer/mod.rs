@@ -71,10 +71,10 @@ impl Explorer {
         ns.update_context(&self.grep, delta);
     }
 
-    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> Table { // TODO performance issue: refactor node_detail and get_node, the result should be a wrapper function that calls node_detail and get_node and return a tuple of these two functions. That's because node_detail and get_node are often used in tandem.
+    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> (String, Table) {
         match self.get_node(i, folder_filter, filter_mode) {
-            Some(n) => n.detail(offset_detail),
-            None => Table::new(vec![])
+            Some(n) => (n.file_name(), n.detail(offset_detail)),
+            None => (String::from(""), Table::new(vec![]))
         }
     }
 

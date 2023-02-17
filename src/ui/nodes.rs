@@ -54,12 +54,11 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
             .add_modifier(Modifier::BOLD),
     );
 
-    let detail_title = explorer.get_node(node_list_state.selected().expect("there is always a selected node"), &folder_filter, &explorer.filter_mode).expect("wups");
-
-    let node_detail = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &explorer.filter_mode)
+    let (file_name, node_detail) = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &explorer.filter_mode);
+    let node_detail = node_detail
         .header(Row::new(vec![
             Cell::from(Span::styled(
-                format!(" {}", detail_title.file_name()),
+                format!(" {}", file_name),
                 Style::default().add_modifier(Modifier::BOLD),
             )),
         ]))
