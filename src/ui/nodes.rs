@@ -103,8 +103,8 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
     }
     match key.code {
         // KeyCode::Left => { explorer.decrease_context(); },
-        KeyCode::Left => { explorer.update_context(node_list_state.selected().unwrap(), -1); },
-        KeyCode::Right => { explorer.update_context(node_list_state.selected().unwrap(), 1); },
+        KeyCode::Left => { explorer.update_context(node_list_state.selected().unwrap(), -1, &app.folder_filter, &app.filter_mode); },
+        KeyCode::Right => { explorer.update_context(node_list_state.selected().unwrap(), 1, &app.folder_filter, &app.filter_mode); },
         KeyCode::Down => {
             match app.selected_node_tab {
                 NodeTabSelected::FileList => {

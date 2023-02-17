@@ -41,12 +41,16 @@ impl Explorer {
         self.nodes.0.iter().fold("".to_string(), |res, n| res + " " + &n.file_name()).trim().to_string()
     }
 
-    pub fn update_context(&mut self, i: usize, delta: isize) {
-        let n: &mut Node = self.nodes.0.get_mut(i).unwrap();
-        n.update_context(&self.grep, delta);
+    pub fn update_context(&mut self, i: usize, delta: isize, folder_filter: &String, filter_mode: &FilterMode) {
+        let mut binding = match filter_mode {
+            FilterMode::Contain => self.nodes.0.iter_mut().filter(|node| node.file_name().contains(folder_filter)).collect::<Vec<&mut Node>>(),
+            FilterMode::Omit => self.nodes.0.iter_mut().filter(|node| !node.file_name().contains(folder_filter)).collect::<Vec<&mut Node>>(),
+        };
+        let ns = binding.get_mut(i).unwrap();
+        ns.update_context(&self.grep, delta);
     }
 
-    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> Table {
+    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> Table { // TODO performance issue: refactor node_detail and get_node, the result should be a wrapper function that calls node_detail and get_node and return a tuple of these two functions. That's because node_detail and get_node are often used in tandem.
         match self.get_node(i, folder_filter, filter_mode) {
             Some(n) => n.detail(offset_detail),
             None => Table::new(vec![])
