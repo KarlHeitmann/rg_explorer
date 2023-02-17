@@ -7,6 +7,8 @@ use tui::{
     },
 };
 
+use crate::explorer::Explorer;
+
 pub mod home;
 pub mod edit;
 pub mod nodes;
@@ -32,9 +34,7 @@ pub enum FilterMode {
 }
 
 pub struct App {
-    pub folder_filter: String,
     selected_node_tab: NodeTabSelected,
-    pub filter_mode: FilterMode,
     pub offset_detail: usize,
     pub subchild_search: String,
     input_mode: InputMode,
@@ -43,12 +43,10 @@ pub struct App {
 impl Default for App {
     fn default() -> App {
         App {
-            folder_filter: String::from(""),
             offset_detail: 0,
             subchild_search: String::from(""),
             // selected_node_tab: String::from(""),
             selected_node_tab: NodeTabSelected::FileList,
-            filter_mode: FilterMode::Contain,
             input_mode: InputMode::Normal,
         }
     }
@@ -104,16 +102,16 @@ pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuI
         .divider(Span::raw("|"))
 }
 
-pub fn draw_status_bar<'layout>(app: &App) -> Paragraph<'layout> {
+pub fn draw_status_bar<'layout>(app: &App, explorer: &Explorer) -> Paragraph<'layout> {
     let (title, color) = match app.get_input_mode() {
         InputMode::Normal => {
-            match app.filter_mode {
+            match explorer.filter_mode {
                 FilterMode::Contain => ("NORMAL MODE +++FILTER MODE CONTAIN+++", Color::LightCyan),
                 FilterMode::Omit => ("NORMAL MODE ---filter mode omit---", Color::LightCyan),
             }
         },
         InputMode::Editing => {
-            match app.filter_mode {
+            match explorer.filter_mode {
                 FilterMode::Contain => ("-Insert mode- +++FILTER MODE CONTAIN+++", Color::Red),
                 FilterMode::Omit => ("-Insert mode- ---filter mode omit---", Color::Red),
             }
