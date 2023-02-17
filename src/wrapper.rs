@@ -60,7 +60,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
     let mut explorer = Explorer::new(search_term, folders); // TODO Create default
     let mut app = ui::App::default();
     let mut active_menu_item = MenuItem::Home;
-    let mut node_list_state = ListState::default();
+    let mut node_list_state = ListState::default(); // TARGET
     node_list_state.select(Some(0));
     let menu_titles = vec!["Home", "Nodes", "Edit", "SubSearch", "Delete", "Quit"];
 
@@ -69,7 +69,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
             let explorer = &mut explorer;
             let chunks = ui::get_layout_chunks(rect.size());
 
-            let status_bar = ui::draw_status_bar(app.get_input_mode());
+            let status_bar = ui::draw_status_bar(&app);
 
             let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item);
 

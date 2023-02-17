@@ -5,6 +5,7 @@ use serde_json::Result;
 
 pub mod node;
 pub use node::{Node,Type};
+use crate::ui::FilterMode;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
@@ -38,9 +39,16 @@ impl Nodes {
         v
     }
 
-    pub fn filtered_nodes(&self, folder_filter: String) -> Vec<&Node> {
+    pub fn filtered_nodes(&self, folder_filter: &String, filter_mode: &FilterMode) -> Vec<&Node> {
         let items = &self.0;
-        items.into_iter().filter(|node| node.file_name().contains(&folder_filter)).collect()
+        match filter_mode {
+            FilterMode::Contain => {
+                items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
+            },
+            FilterMode::Omit => {
+                items.into_iter().filter(|node| !node.file_name().contains(folder_filter)).collect()
+            }
+        }
     }
 
     pub fn node_matches_count(&self, i: usize) -> usize {

@@ -26,9 +26,15 @@ pub enum NodeTabSelected {
     Detail,
 }
 
+pub enum FilterMode {
+    Contain,
+    Omit,
+}
+
 pub struct App {
     pub folder_filter: String,
-    pub selected_node_tab: NodeTabSelected,
+    selected_node_tab: NodeTabSelected,
+    pub filter_mode: FilterMode,
     pub offset_detail: usize,
     pub subchild_search: String,
     input_mode: InputMode,
@@ -42,6 +48,7 @@ impl Default for App {
             subchild_search: String::from(""),
             // selected_node_tab: String::from(""),
             selected_node_tab: NodeTabSelected::FileList,
+            filter_mode: FilterMode::Contain,
             input_mode: InputMode::Normal,
         }
     }
@@ -97,10 +104,20 @@ pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuI
         .divider(Span::raw("|"))
 }
 
-pub fn draw_status_bar<'layout>(input_mode: InputMode) -> Paragraph<'layout> {
-    let (title, color) = match input_mode {
-        InputMode::Normal =>  ("NORMAL MODE", Color::LightCyan),
-        InputMode::Editing => ("-Insert mode-", Color::Red),
+pub fn draw_status_bar<'layout>(app: &App) -> Paragraph<'layout> {
+    let (title, color) = match app.get_input_mode() {
+        InputMode::Normal => {
+            match app.filter_mode {
+                FilterMode::Contain => ("NORMAL MODE +++FILTER MODE CONTAIN+++", Color::LightCyan),
+                FilterMode::Omit => ("NORMAL MODE ---filter mode omit---", Color::LightCyan),
+            }
+        },
+        InputMode::Editing => {
+            match app.filter_mode {
+                FilterMode::Contain => ("-Insert mode- +++FILTER MODE CONTAIN+++", Color::Red),
+                FilterMode::Omit => ("-Insert mode- ---filter mode omit---", Color::Red),
+            }
+        }
     };
     Paragraph::new(title)
         .style(Style::default().fg(color))
