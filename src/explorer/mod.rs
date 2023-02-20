@@ -47,7 +47,20 @@ impl Explorer {
     pub fn update_folder_filter(&mut self, key_code: KeyCode) {
         match key_code {
             KeyCode::Char(c) => { self.folder_filter[self.folder_filter_i].push(c); },
-            KeyCode::Backspace => { self.folder_filter[self.folder_filter_i].pop(); },
+            KeyCode::Enter => {
+                self.folder_filter.push(String::new());
+                self.folder_filter_i += 1;
+            },
+            KeyCode::Backspace => {
+                let ff = &mut self.folder_filter[self.folder_filter_i];
+
+                if ff.len() > 0 {
+                    ff.pop();
+                } else if self.folder_filter.len() > 0 {
+                    self.folder_filter.pop();
+                    self.folder_filter_i -= 1;
+                }
+            },
             _ => {}
         }
     }

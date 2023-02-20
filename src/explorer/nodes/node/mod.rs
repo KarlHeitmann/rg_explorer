@@ -57,7 +57,7 @@ impl Node {
     }
 
     pub fn include_filter(&self, folder_filter: &Vec<String>) -> bool {
-        folder_filter.iter().fold(true, |acc, file| acc && self.begin.path.text.contains(file))
+        folder_filter.iter().fold(false, |acc, file| acc || self.begin.path.text.contains(file))
     }
 
     pub fn new(data_raw: Vec<(&str, Type)>, after_context: usize, before_context: usize) -> Self {
