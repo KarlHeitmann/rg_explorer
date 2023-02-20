@@ -14,7 +14,6 @@ use crate::explorer::Explorer;
 use crate::ui::{App, InputMode, FilterMode};
 
 pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app: &App) -> (List<'a>, Table<'a>) {
-    let folder_filter = explorer.folder_filter.clone();
     let selected_node_tab = &app.selected_node_tab;
     let (style_list, style_detail) = match selected_node_tab {
         NodeTabSelected::Detail  => { (Style::default().fg(Color::White), Style::default().fg(Color::Green)) },
@@ -33,10 +32,9 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
     let nodes_block:Block = Block::default()
         .borders(Borders::ALL)
         .style(style_list)
-        .title(format!("Filter: '{folder_filter}'"))
+        .title(format!("Filter: '{}'", explorer.show_folder_filter()))
         .border_type(BorderType::Plain);
 
-    // let items: Vec<ListItem> = explorer.nodes.filtered_nodes(folder_filter)
     let items: Vec<ListItem> = explorer.filtered_nodes()
         .into_iter()
         .map(|node| {
@@ -54,7 +52,7 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
             .add_modifier(Modifier::BOLD),
     );
 
-    let (file_name, node_detail) = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail, &folder_filter, &explorer.filter_mode);
+    let (file_name, node_detail) = explorer.node_detail(node_list_state.selected().expect("there is always a selected node"), app.offset_detail);
     let node_detail = node_detail
         .header(Row::new(vec![
             Cell::from(Span::styled(
