@@ -56,6 +56,10 @@ impl Node {
         self.begin.path.text.clone()
     }
 
+    pub fn include_filter(&self, folder_filter: &Vec<String>) -> bool {
+        folder_filter.iter().fold(true, |acc, file| acc && self.begin.path.text.contains(file))
+    }
+
     pub fn new(data_raw: Vec<(&str, Type)>, after_context: usize, before_context: usize) -> Self {
         // todo!(); // XXX Use todo! macro to left a function without implementation, so beautiful :D
         let mut begin: Option<Begin> = None;

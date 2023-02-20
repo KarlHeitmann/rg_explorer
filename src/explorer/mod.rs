@@ -22,7 +22,8 @@ pub struct RipGrep {
 pub struct Explorer {
     pub nodes: Nodes,
     pub filter_mode: FilterMode,
-    folder_filter: String,
+    folder_filter: Vec<String>,
+    folder_filter_i: usize,
     pub grep: RipGrep,
 }
 
@@ -31,20 +32,22 @@ impl Explorer {
         let mut grep = RipGrep::new(search_term, folder);
         let nodes = grep.run();
         Self {
-            folder_filter: String::from(""),
+            folder_filter: vec![String::from("")],
+            folder_filter_i: 0,
             filter_mode: FilterMode::Contain,
             nodes, grep,
         }
     }
 
     pub fn show_folder_filter(&self) -> String {
-        self.folder_filter.clone()
+        self.folder_filter.join(",")
+
     }
 
     pub fn update_folder_filter(&mut self, key_code: KeyCode) {
         match key_code {
-            KeyCode::Char(c) => { self.folder_filter.push(c); },
-            KeyCode::Backspace => { self.folder_filter.pop(); },
+            KeyCode::Char(c) => { self.folder_filter[self.folder_filter_i].push(c); },
+            KeyCode::Backspace => { self.folder_filter[self.folder_filter_i].pop(); },
             _ => {}
         }
     }
@@ -63,18 +66,18 @@ impl Explorer {
         let items = &self.nodes.0;
         match self.filter_mode {
             FilterMode::Contain => {
-                items.into_iter().filter(|node| node.file_name().contains(&self.folder_filter)).collect()
+                items.into_iter().filter(|node| node.include_filter(&self.folder_filter)).collect()
             },
             FilterMode::Omit => {
-                items.into_iter().filter(|node| !node.file_name().contains(&self.folder_filter)).collect()
+                items.into_iter().filter(|node| !node.include_filter(&self.folder_filter)).collect()
             }
         }
     }
 
     pub fn update_context(&mut self, i: usize, delta: isize) {
         let mut binding = match self.filter_mode {
-            FilterMode::Contain => self.nodes.0.iter_mut().filter(|node| node.file_name().contains(&self.folder_filter)).collect::<Vec<&mut Node>>(),
-            FilterMode::Omit => self.nodes.0.iter_mut().filter(|node| !node.file_name().contains(&self.folder_filter)).collect::<Vec<&mut Node>>(),
+            FilterMode::Contain => self.nodes.0.iter_mut().filter(|node| node.include_filter(&self.folder_filter)).collect::<Vec<&mut Node>>(),
+            FilterMode::Omit => self.nodes.0.iter_mut().filter(|node| !node.include_filter(&self.folder_filter)).collect::<Vec<&mut Node>>(),
         };
         let ns = binding.get_mut(i).unwrap();
         ns.update_context(&self.grep, delta);
@@ -91,10 +94,10 @@ impl Explorer {
         let items = &self.nodes.0;
         let items: Vec<&Node> = match self.filter_mode {
             FilterMode::Contain => {
-                items.into_iter().filter(|node| node.file_name().contains(&self.folder_filter)).collect()
+                items.into_iter().filter(|node| node.include_filter(&self.folder_filter)).collect()
             },
             FilterMode::Omit => {
-                items.into_iter().filter(|node| !node.file_name().contains(&self.folder_filter)).collect()
+                items.into_iter().filter(|node| !node.include_filter(&self.folder_filter)).collect()
             }
         };
         items.get(i).copied()
