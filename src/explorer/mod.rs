@@ -3,6 +3,8 @@ use std::str;
 use tui::widgets::Table;
 use std::process::{Command, Stdio};
 
+use crossterm::event::KeyCode;
+
 use crate::ui::FilterMode;
 use crate::explorer::nodes::Nodes;
 use crate::explorer::nodes::Node;
@@ -20,7 +22,7 @@ pub struct RipGrep {
 pub struct Explorer {
     pub nodes: Nodes,
     pub filter_mode: FilterMode,
-    pub folder_filter: String,
+    folder_filter: String,
     pub grep: RipGrep,
 }
 
@@ -37,6 +39,14 @@ impl Explorer {
 
     pub fn show_folder_filter(&self) -> String {
         self.folder_filter.clone()
+    }
+
+    pub fn update_folder_filter(&mut self, key_code: KeyCode) {
+        match key_code {
+            KeyCode::Char(c) => { self.folder_filter.push(c); },
+            KeyCode::Backspace => { self.folder_filter.pop(); },
+            _ => {}
+        }
     }
 
     pub fn run_wrapper(&mut self) {

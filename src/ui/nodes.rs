@@ -91,11 +91,7 @@ pub fn action_nodes(explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_
             }
         }
         InputMode::Editing => {
-            match key.code {
-                KeyCode::Char(c) => { explorer.folder_filter.push(c); },
-                KeyCode::Backspace => { explorer.folder_filter.pop(); },
-                _ => {}
-            }
+            explorer.update_folder_filter(key.code);
         }
     }
     match key.code {
