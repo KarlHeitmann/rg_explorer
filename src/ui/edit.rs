@@ -14,7 +14,7 @@ use crate::ui::{App, InputMode};
 use crate::explorer::{ Explorer, RipGrep };
 
 
-pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
+pub fn render_edit(rip_grep_command: &RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph, Paragraph, Vec<Rect>) {
     let color = match input_mode {
         InputMode::Normal => Color::Gray,
         InputMode::Editing => Color::Red,
@@ -27,7 +27,7 @@ pub fn render_edit<'a>(rip_grep_command: &'a RipGrep, chunk: Rect, input_mode: I
         .split(chunk);
 
     let input = Paragraph::new(vec![
-            Spans::from(vec![Span::raw(&rip_grep_command.search_term_buffer)]),
+            Spans::from(vec![Span::raw(rip_grep_command.search_term_buffer.clone())]),
             Spans::from(vec![Span::raw("INPUT this should be mutable")]),
         ]) // app.input is a String
         .style(Style::default().fg(color))
