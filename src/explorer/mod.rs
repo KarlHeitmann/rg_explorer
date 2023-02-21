@@ -72,7 +72,7 @@ impl Explorer {
     }
 
     pub fn get_file_name_matches(&self) -> String{
-        self.nodes.0.iter().fold("".to_string(), |res, n| res + " " + &n.file_name()).trim().to_string()
+        self.filtered_nodes().iter().fold("".to_string(), |res, n| res + " " + &n.file_name()).trim().to_string()
     }
 
     pub fn filtered_nodes(&self) -> Vec<&Node> {
