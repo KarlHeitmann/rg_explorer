@@ -3,6 +3,8 @@ use std::str;
 use tui::widgets::Table;
 use std::process::{Command, Stdio};
 
+use crossterm::event::KeyCode;
+
 use crate::ui::FilterMode;
 use crate::explorer::nodes::Nodes;
 use crate::explorer::nodes::Node;
@@ -19,9 +21,9 @@ pub struct RipGrep {
 
 pub struct Explorer {
     pub nodes: Nodes,
-    // folder_filter: String::from(""),
     pub filter_mode: FilterMode,
-    pub folder_filter: String,
+    folder_filter: Vec<String>,
+    folder_filter_i: usize,
     pub grep: RipGrep,
 }
 
@@ -30,9 +32,36 @@ impl Explorer {
         let mut grep = RipGrep::new(search_term, folder);
         let nodes = grep.run();
         Self {
-            folder_filter: String::from(""),
+            folder_filter: vec![String::from("")],
+            folder_filter_i: 0,
             filter_mode: FilterMode::Contain,
             nodes, grep,
+        }
+    }
+
+    pub fn show_folder_filter(&self) -> String {
+        self.folder_filter.join(",")
+
+    }
+
+    pub fn update_folder_filter(&mut self, key_code: KeyCode) {
+        match key_code {
+            KeyCode::Char(c) => { self.folder_filter[self.folder_filter_i].push(c); },
+            KeyCode::Enter => {
+                self.folder_filter.push(String::new());
+                self.folder_filter_i += 1;
+            },
+            KeyCode::Backspace => {
+                let ff = &mut self.folder_filter[self.folder_filter_i];
+
+                if ff.len() > 0 {
+                    ff.pop();
+                } else if self.folder_filter.len() > 0 {
+                    self.folder_filter.pop();
+                    self.folder_filter_i -= 1;
+                }
+            },
+            _ => {}
         }
     }
 
@@ -47,45 +76,41 @@ impl Explorer {
     }
 
     pub fn filtered_nodes(&self) -> Vec<&Node> {
-        let folder_filter = &self.folder_filter;
-        let filter_mode = &self.filter_mode;
         let items = &self.nodes.0;
-        match filter_mode {
+        match self.filter_mode {
             FilterMode::Contain => {
-                items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
+                items.into_iter().filter(|node| node.include_filter(&self.folder_filter)).collect()
             },
             FilterMode::Omit => {
-                items.into_iter().filter(|node| !node.file_name().contains(folder_filter)).collect()
+                items.into_iter().filter(|node| !node.include_filter(&self.folder_filter)).collect()
             }
         }
     }
 
     pub fn update_context(&mut self, i: usize, delta: isize) {
-        let folder_filter = &self.folder_filter;
-        let filter_mode = &self.filter_mode;
-        let mut binding = match filter_mode {
-            FilterMode::Contain => self.nodes.0.iter_mut().filter(|node| node.file_name().contains(folder_filter)).collect::<Vec<&mut Node>>(),
-            FilterMode::Omit => self.nodes.0.iter_mut().filter(|node| !node.file_name().contains(folder_filter)).collect::<Vec<&mut Node>>(),
+        let mut binding = match self.filter_mode {
+            FilterMode::Contain => self.nodes.0.iter_mut().filter(|node| node.include_filter(&self.folder_filter)).collect::<Vec<&mut Node>>(),
+            FilterMode::Omit => self.nodes.0.iter_mut().filter(|node| !node.include_filter(&self.folder_filter)).collect::<Vec<&mut Node>>(),
         };
         let ns = binding.get_mut(i).unwrap();
         ns.update_context(&self.grep, delta);
     }
 
-    pub fn node_detail(&self, i: usize, offset_detail: usize, folder_filter: &String, filter_mode: &FilterMode) -> (String, Table) {
-        match self.get_node(i, folder_filter, filter_mode) {
+    pub fn node_detail(&self, i: usize, offset_detail: usize) -> (String, Table) {
+        match self.get_node(i) {
             Some(n) => (n.file_name(), n.detail(offset_detail)),
             None => (String::from(""), Table::new(vec![]))
         }
     }
 
-    pub fn get_node(&self, i: usize, folder_filter: &String, filter_mode: &FilterMode) -> Option<&Node> {
+    pub fn get_node(&self, i: usize) -> Option<&Node> {
         let items = &self.nodes.0;
-        let items: Vec<&Node> = match filter_mode {
+        let items: Vec<&Node> = match self.filter_mode {
             FilterMode::Contain => {
-                items.into_iter().filter(|node| node.file_name().contains(folder_filter)).collect()
+                items.into_iter().filter(|node| node.include_filter(&self.folder_filter)).collect()
             },
             FilterMode::Omit => {
-                items.into_iter().filter(|node| !node.file_name().contains(folder_filter)).collect()
+                items.into_iter().filter(|node| !node.include_filter(&self.folder_filter)).collect()
             }
         };
         items.get(i).copied()

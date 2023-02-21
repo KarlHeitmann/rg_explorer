@@ -5,7 +5,6 @@ use serde_json::Result;
 
 pub mod node;
 pub use node::{Node,Type};
-use crate::ui::FilterMode;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[allow(non_camel_case_types)]
