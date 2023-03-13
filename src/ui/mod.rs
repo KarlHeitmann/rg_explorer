@@ -77,7 +77,7 @@ pub fn get_layout_chunks(size: Rect) -> Vec<Rect> {
 }
 
 // pub fn draw_menu_tabs(menu_titles: &Vec<&str>, active_menu_item: MenuItem) -> Tabs {
-pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuItem) -> Tabs<'a> {
+pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuItem, title: String) -> Tabs<'a> {
     let menu = menu_titles
         .iter()
         .map(|t| {
@@ -96,7 +96,7 @@ pub fn draw_menu_tabs<'a>(menu_titles: &'a Vec<&'a str>, active_menu_item: MenuI
 
     Tabs::new(menu)
         .select(active_menu_item.into())
-        .block(Block::default().title("Menu").borders(Borders::ALL))
+        .block(Block::default().title(title).borders(Borders::ALL))
         .style(Style::default().fg(Color::White))
         .highlight_style(Style::default().fg(Color::Yellow))
         .divider(Span::raw("|"))

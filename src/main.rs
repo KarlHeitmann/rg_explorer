@@ -38,7 +38,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let folder = if cli.folder.is_none() { String::from(".") } else { cli.folder.unwrap() };
 
-    wrapper::explorer_wrapper(&mut terminal, cli.search_term, folder, cli.word, cli.ignorecase)?;
+    let title = String::from("  ");
+
+    wrapper::explorer_wrapper(&mut terminal, &title, cli.search_term, folder, cli.word, cli.ignorecase)?;
 
     disable_raw_mode()?;
     terminal.show_cursor()?;

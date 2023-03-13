@@ -78,7 +78,7 @@ pub fn render_nodes<'a>(node_list_state: &ListState, explorer: &'a Explorer, app
     (list, node_detail)
 }
 
-pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_list_state: &mut ListState) -> Result<(), Box<dyn std::error::Error>> {
+pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: String, explorer: &mut Explorer, app: &mut App, key: KeyEvent, node_list_state: &mut ListState) -> Result<(), Box<dyn std::error::Error>> {
     match app.get_input_mode() {
         InputMode::Normal => {
             match key.code {
@@ -151,7 +151,7 @@ pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, explorer:
                 "_" => {
                     if folder.contains("app/views") {
                         let (name, _) = file_name.split_once(".").unwrap();
-                        explorer_wrapper(terminal, format!("render.*{}", name), String::from("app/views"), None, None)?;
+                        explorer_wrapper(terminal, &format!("{} {} ", title, complete_file_name), format!("render.*{}", name), String::from("app/views"), None, None)?;
                     }
                 },
                 _ => {}

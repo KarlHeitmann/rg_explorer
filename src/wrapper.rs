@@ -56,7 +56,7 @@ fn selection_menu_handler(key_code: KeyCode) -> Option <MenuItem> {
 use std::io::Stdout;
 
  // pub fn explorer(terminal: Terminal<B>) {
-pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, search_term: String, folders: String, word: Option<String>, ignorecase: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: &String, search_term: String, folders: String, word: Option<String>, ignorecase: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
     let mut explorer = Explorer::new(search_term, folders, word.clone(), ignorecase.clone()); // TODO Create default
     let mut app = ui::App::default();
     let mut active_menu_item = MenuItem::Home;
@@ -71,7 +71,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
 
             let status_bar = ui::draw_status_bar(&app, &explorer);
 
-            let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item);
+            let tabs = ui::draw_menu_tabs(&menu_titles, active_menu_item, title.clone());
 
             rect.render_widget(tabs, chunks[0]);
             match active_menu_item {
@@ -142,10 +142,10 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                     action_edit(&mut explorer, &mut app, key);
                 },
                 MenuItem::Nodes => {
-                    action_nodes(terminal, &mut explorer, &mut app, key, &mut node_list_state, )?;
+                    action_nodes(terminal, title.clone(), &mut explorer, &mut app, key, &mut node_list_state, )?;
                 },
                 MenuItem::SubSearch => {
-                    action_sub_search(terminal, explorer.get_file_name_matches(), &mut app, key, word.clone(), ignorecase.clone())?;
+                    action_sub_search(terminal, title.clone(), explorer.get_file_name_matches(), &mut app, key, word.clone(), ignorecase.clone())?;
                 },
                 _ => {
                     match key.code {
