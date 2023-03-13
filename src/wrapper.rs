@@ -142,7 +142,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, searc
                     action_edit(&mut explorer, &mut app, key);
                 },
                 MenuItem::Nodes => {
-                    action_nodes(&mut explorer, &mut app, key, &mut node_list_state);
+                    action_nodes(terminal, &mut explorer, &mut app, key, &mut node_list_state, )?;
                 },
                 MenuItem::SubSearch => {
                     action_sub_search(terminal, explorer.get_file_name_matches(), &mut app, key, word.clone(), ignorecase.clone())?;
