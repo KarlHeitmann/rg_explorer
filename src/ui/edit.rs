@@ -14,7 +14,7 @@ use crate::ui::{App, InputMode};
 use crate::explorer::{ Explorer, RipGrep };
 
 
-pub fn render_edit(rip_grep_command: &RipGrep, chunk: Rect, input_mode: InputMode) -> (Paragraph, Paragraph, Vec<Rect>) {
+pub fn render_edit<'a>(rip_grep_command: &RipGrep, raw_output: &'a str, chunk: Rect, input_mode: InputMode) -> (Paragraph<'a>, Paragraph<'a>, Vec<Rect>) {
     let color = match input_mode {
         InputMode::Normal => Color::Gray,
         InputMode::Editing => Color::Red,
@@ -33,10 +33,24 @@ pub fn render_edit(rip_grep_command: &RipGrep, chunk: Rect, input_mode: InputMod
         .style(Style::default().fg(color))
         .block(Block::default().borders(Borders::ALL).title("Search term"));
 
+    // let asd = rip_grep_command.raw_output().split("\n").collect::<Vec<String>>();
+    /*
+    let asd = rip_grep_command.raw_output().split("\n").collect::<Vec<&str>>();
+    let asd: Vec<Span> = asd.into_iter().map(|line| Span::raw(line)).collect();
+    */
+
+    let asd: Vec<Span> = raw_output
+        .split("\n")
+        .map(|line| Span::raw(format!("{}\n", line)))
+        .collect();
+
     let home = Paragraph::new(vec![
         Spans::from(vec![Span::raw(rip_grep_command.to_string())]),
         // Spans::from(vec![Span::raw(rip_grep_command.raw_output())]),
-        Spans::from(vec![Span::raw(rip_grep_command.raw_output())]),
+        // Spans::from(vec![Span::raw(rip_grep_command.raw_output())]),
+        // Spans::from(rip_grep_command.raw_output().split("\n").collect::<Vec<&str>>().iter().map(|line| Span::raw(line))),
+        // Spans::from(asd.iter().map(|line| Span::raw(line))),
+        Spans::from(asd),
     ])
     .wrap(Wrap { trim: false })
     // .wrap(Wrap { trim: true })

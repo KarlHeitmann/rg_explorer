@@ -16,6 +16,7 @@ pub struct RipGrep {
     pub search_term_buffer: String,
     after_context: usize,
     before_context: usize,
+    extra: String,
     folder: String,
 }
 
@@ -28,8 +29,14 @@ pub struct Explorer {
 }
 
 impl Explorer {
-    pub fn new(search_term: String, folder: String) -> Self {
-        let mut grep = RipGrep::new(search_term, folder);
+    pub fn new(search_term: String, folder: String, word: Option<String>, ignorecase: Option<String>) -> Self {
+        let extra = match (word, ignorecase) {
+            (Some(_), Some(_)) => String::from("-w -i"),
+            (None, Some(_)) => String::from("-i"),
+            (Some(_), None) => String::from("-w"),
+            (None, None) => String::new()
+        };
+        let mut grep = RipGrep::new(search_term, folder, extra);
         let nodes = grep.run();
         Self {
             folder_filter: vec![String::from("")],
@@ -118,12 +125,12 @@ impl Explorer {
 }
 
 impl RipGrep {
-    pub fn new(search_term: String, folder: String) -> Self {
+    pub fn new(search_term: String, folder: String, extra: String) -> Self {
         let after_context = 1;
         let before_context = 1;
         Self {
             search_term_buffer: search_term.clone(),
-            search_term,
+            search_term, extra,
             after_context, before_context, folder,
         }
     }
@@ -149,8 +156,8 @@ impl RipGrep {
     }
 
     fn rg_args(&self) -> String {
-        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
-        format!("{search_term} --json -A {after_context} -B {before_context} {folder}")
+        let (search_term, after_context, before_context, folder, extra) = (&self.search_term, &self.after_context, &self.before_context, &self.folder, &self.extra);
+        format!("{search_term} --json -A {after_context} -B {before_context} {extra} {folder}")
     }
 
     fn args(&self, after_context: usize, before_context: usize, file: String) -> String {
@@ -180,7 +187,7 @@ impl RipGrep {
 
     pub fn raw_output(&self) -> String {
         let (search_term, after_context, before_context) = (&self.search_term, &self.after_context, &self.before_context);
-        let args = format!("{search_term} --json -A {after_context} -B {before_context}");
+        let args = format!("{search_term} -A {after_context} -B {before_context}");
         let res = Self::launch_rg(args);
         match res {
             Some(res) => format!("{res}"),

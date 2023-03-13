@@ -17,6 +17,8 @@ mod wrapper;
 #[command(author, version, about, long_about = None)]
 struct Cli {
     search_term: String,
+    word: Option<String>,
+    ignorecase: Option<String>,
     folder: Option<String>,
 }
 
@@ -36,7 +38,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let folder = if cli.folder.is_none() { String::from(".") } else { cli.folder.unwrap() };
 
-    wrapper::explorer_wrapper(&mut terminal, cli.search_term, folder)?;
+    wrapper::explorer_wrapper(&mut terminal, cli.search_term, folder, cli.word, cli.ignorecase)?;
 
     disable_raw_mode()?;
     terminal.show_cursor()?;
