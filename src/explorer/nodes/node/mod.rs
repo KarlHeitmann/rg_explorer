@@ -113,15 +113,29 @@ impl Node {
         self.r#match.len()
     }
 
-    pub fn detail(&self, offset_detail: usize) -> Table {
-        Table::new(
-            self.r#match[offset_detail..].iter().map(|m| {
-                Row::new(vec![
-                    Cell::from(m.pretty_line_match()),
-                    // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
-                ])
-            })
-        )
+    pub fn detail(&self, offset_detail: usize, m: Option<String>) -> Table {
+        match m {
+            Some(m) => {
+                let rows_1: Vec<Row> = vec![Row::new(vec![Cell::from(m)])];
+                let rows_2: Vec<Row> = self.r#match[offset_detail..].iter().map(|m| {
+                    Row::new(vec![
+                        Cell::from(m.pretty_line_match()),
+                        // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
+                    ])
+                }).collect();
+                let rows = [rows_1, rows_2].concat();
+
+                Table::new(rows)
+            },
+            None => {
+                Table::new(self.r#match[offset_detail..].iter().map(|m| {
+                    Row::new(vec![
+                        Cell::from(m.pretty_line_match()),
+                        // Cell::from(Spans::from(vec![Span::styled("My", Style::default().fg(Color::Yellow)), Span::raw(" text"),])),
+                    ])
+                }))
+            }
+        }
     }
 
     pub fn summary(&self) -> String {

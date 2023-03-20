@@ -107,10 +107,12 @@ pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: St
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
                         let amount_nodes = explorer.filtered_nodes().len(); // TODO: Consider borrow instead of clone
-                        if selected >= amount_nodes - 1 {
-                            node_list_state.select(Some(0));
-                        } else {
-                            node_list_state.select(Some(selected + 1));
+                        if amount_nodes > 0 {
+                            if selected >= amount_nodes - 1 {
+                                node_list_state.select(Some(0));
+                            } else {
+                                node_list_state.select(Some(selected + 1));
+                            }
                         }
                     }
                     app.offset_detail = 0;
@@ -127,10 +129,12 @@ pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: St
                 NodeTabSelected::FileList => {
                     if let Some(selected) = node_list_state.selected() {
                         let amount_nodes = explorer.filtered_nodes().len(); // TODO: Consider borrow instead of clone
-                        if selected > 0 {
-                            node_list_state.select(Some(selected - 1));
-                        } else {
-                            node_list_state.select(Some(amount_nodes - 1));
+                        if amount_nodes > 0 {
+                            if selected > 0 {
+                                node_list_state.select(Some(selected - 1));
+                            } else {
+                                node_list_state.select(Some(amount_nodes - 1));
+                            }
                         }
                     }
                     app.offset_detail = 0;
