@@ -155,7 +155,7 @@ pub fn action_nodes(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: St
                 "_" => {
                     if folder.contains("app/views") {
                         let (name, _) = file_name.split_once(".").unwrap();
-                        explorer_wrapper(terminal, &format!("{} {} ", title, complete_file_name), format!("render.*{}", name), String::from("app/views"), None, None)?;
+                        explorer_wrapper(terminal, &format!("{} {} ", title, complete_file_name), format!("render.*{}", name), String::from("app/views"), false, false)?;
                     }
                 },
                 _ => {}

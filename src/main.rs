@@ -13,12 +13,30 @@ mod ui;
 mod wrapper;
 
 
+/*
+#[derive(Parser)] // requires `derive` feature
+#[command(author, version, about, long_about = None)]
+struct Cli {
+    #[arg(short = 'f')]
+    eff: bool,
+
+    #[arg(short = 'p', value_name = "PEAR")]
+    pea: Option<String>,
+
+    #[arg(last = true)]
+    slop: Vec<String>,
+}
+*/
+
+
 #[derive(Parser)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     search_term: String,
-    word: Option<String>,
-    ignorecase: Option<String>,
+    #[arg(short = 'w')]
+    word: bool,
+    #[arg(short = 'i')]
+    ignorecase: bool,
     folder: Option<String>,
 }
 

@@ -32,7 +32,7 @@ pub fn render_sub_search<'a>(_rip_grep_command: String, subchild_search: String)
     sub_search
 }
 
-pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: String, file_name_matches: String, app: &mut App, key: KeyEvent, word: Option<String>, ignorecase: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn action_sub_search(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: String, file_name_matches: String, app: &mut App, key: KeyEvent, word: bool, ignorecase: bool) -> Result<(), Box<dyn std::error::Error>> {
     match app.get_input_mode() {
         InputMode::Normal => {
             match key.code {

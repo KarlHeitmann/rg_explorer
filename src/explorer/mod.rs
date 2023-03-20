@@ -141,12 +141,13 @@ pub struct Explorer {
 }
 
 impl Explorer {
-    pub fn new(search_term: String, folder: String, word: Option<String>, ignorecase: Option<String>) -> Self {
+    // pub fn new(search_term: String, folder: String, word: Option<String>, ignorecase: Option<String>) -> Self {
+    pub fn new(search_term: String, folder: String, word: bool, ignorecase: bool) -> Self {
         let extra = match (word, ignorecase) {
-            (Some(_), Some(_)) => String::from("-w -i"),
-            (None, Some(_)) => String::from("-i"),
-            (Some(_), None) => String::from("-w"),
-            (None, None) => String::new()
+            (true, true) => String::from("-w -i"),
+            (false, true) => String::from("-i"),
+            (true, false) => String::from("-w"),
+            (false, false) => String::new()
         };
         let mut grep = RipGrep::new(search_term, folder, extra);
         let nodes = grep.run();
@@ -328,8 +329,9 @@ impl RipGrep {
 
 impl Display for RipGrep {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
-        let (search_term, after_context, before_context, folder) = (&self.search_term, &self.after_context, &self.before_context, &self.folder);
-        write!(f, "rg {search_term} --json -A {after_context} -B {before_context} {folder}")
+        let (search_term, after_context, before_context, folder, extra) = (&self.search_term, &self.after_context, &self.before_context, &self.folder, &self.extra);
+        // write!(f, "rg '{search_term}' --json -A {after_context} -B {before_context} {folder} {extra}")
+        write!(f, "rg {search_term} --json -A {after_context} -B {before_context} {folder} {extra}")
     }
 }
 

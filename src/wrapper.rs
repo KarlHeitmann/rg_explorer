@@ -56,8 +56,9 @@ fn selection_menu_handler(key_code: KeyCode) -> Option <MenuItem> {
 use std::io::Stdout;
 
  // pub fn explorer(terminal: Terminal<B>) {
-pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: &String, search_term: String, folders: String, word: Option<String>, ignorecase: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
-    let mut explorer = Explorer::new(search_term, folders, word.clone(), ignorecase.clone()); // TODO Create default
+// pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: &String, search_term: String, folders: String, word: Option<String>, ignorecase: Option<String>) -> Result<(), Box<dyn std::error::Error>> {
+pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title: &String, search_term: String, folders: String, word: bool, ignorecase: bool) -> Result<(), Box<dyn std::error::Error>> {
+    let mut explorer = Explorer::new(search_term, folders, word, ignorecase); // TODO Create default
     let mut app = ui::App::default();
     let mut active_menu_item = MenuItem::Home;
     let mut node_list_state = ListState::default(); // TARGET
@@ -145,7 +146,7 @@ pub fn explorer_wrapper(terminal: &mut Terminal<CrosstermBackend<Stdout>>, title
                     action_nodes(terminal, title.clone(), &mut explorer, &mut app, key, &mut node_list_state, )?;
                 },
                 MenuItem::SubSearch => {
-                    action_sub_search(terminal, title.clone(), explorer.get_file_name_matches(), &mut app, key, word.clone(), ignorecase.clone())?;
+                    action_sub_search(terminal, title.clone(), explorer.get_file_name_matches(), &mut app, key, word, ignorecase)?;
                 },
                 _ => {
                     match key.code {
