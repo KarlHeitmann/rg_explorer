@@ -1,4 +1,6 @@
 use crossterm::terminal::{enable_raw_mode, disable_raw_mode};
+use crossterm::terminal::{self, EnterAlternateScreen, LeaveAlternateScreen};
+
 
 use std::io;
 
@@ -40,7 +42,12 @@ struct Cli {
     folder: Option<String>,
 }
 
+fn reset_terminal() -> std::result::Result<(), Box<dyn std::error::Error>> {
+    terminal::disable_raw_mode()?;
+    crossterm::execute!(io::stdout(), LeaveAlternateScreen)?;
 
+    Ok(())
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
@@ -48,11 +55,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // println!("name: {:?}\npath: {:?}", cli.search_term, cli.folder.as_deref());
 
     enable_raw_mode().expect("can run in raw mode");
+    // crossterm::execute!(io::stderr(), EnterAlternateScreen, EnableMouseCapture)?;
+    crossterm::execute!(io::stderr(), EnterAlternateScreen)?;
+
 
     let stdout = io::stdout();
     let backend = CrosstermBackend::new(stdout);
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
+
+    let original_hook = std::panic::take_hook();
+    std::panic::set_hook(Box::new(move |panic| {
+        reset_terminal().unwrap();
+        original_hook(panic);
+    }));
+
+
 
     let folder = if cli.folder.is_none() { String::from(".") } else { cli.folder.unwrap() };
 
